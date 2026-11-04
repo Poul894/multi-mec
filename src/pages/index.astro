@@ -18,11 +18,12 @@ const tickerItems = [
 ];
 
 const indexLinks = [
-  ...units.map((unit) => ({ title: unit.shortName, href: unit.href })),
-  { title: 'Catálogo', href: '/productos' },
-  { title: 'Galería', href: '/galeria' },
-  { title: 'Nosotros', href: '/nosotros' },
-  { title: 'Presupuesto', href: '/contacto' },
+  { title: units[0].shortName, href: units[0].href, bg: '/images/industrial-mordaza.jpg' },
+  { title: units[1].shortName, href: units[1].href, bg: '/images/fitness-sala.jpg' },
+  { title: 'Catálogo', href: '/productos', bg: '/images/industrial-fresa-garant.jpg' },
+  { title: 'Galería', href: '/galeria', bg: '/images/industrial-chispas.jpg' },
+  { title: 'Nosotros', href: '/nosotros', bg: '/images/industrial-fresadora-cnc.jpg' },
+  { title: 'Presupuesto', href: '/contacto', bg: '/images/industrial-mordaza.jpg' },
 ];
 ---
 
@@ -100,6 +101,15 @@ const indexLinks = [
       {
         indexLinks.map((item, i) => (
           <a class="index-row" href={item.href} data-reveal style={`--reveal-delay: ${i * 50}ms;`}>
+            <img
+              class="index-row__bg"
+              src={item.bg}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              width="1200"
+              height="400"
+            />
             <span class="index-row__num">{String(i + 1).padStart(2, '0')}</span>
             <span class="index-row__title">{item.title}</span>
             <span class="index-row__link">
