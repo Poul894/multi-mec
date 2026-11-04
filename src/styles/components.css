@@ -87,6 +87,24 @@
   width: 100%;
 }
 
+.btn--ghost {
+  background: rgba(7, 8, 10, 0.25);
+  border-color: rgba(250, 249, 245, 0.4);
+  color: var(--white);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+
+.btn--ghost:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--ink);
+}
+
 .btn--quiet {
   min-height: auto;
   padding: 0;

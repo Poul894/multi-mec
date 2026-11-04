@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8" />
+<title>Multi Mec — Carta de presentación</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 210mm;
+    height: 297mm;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #15181b;
+    background: #ffffff;
+  }
+  .mono {
+    font-family: 'Consolas', 'Courier New', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 16mm 16mm 12mm;
+    position: relative;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10mm;
+    padding-bottom: 6mm;
+    border-bottom: 2px solid #3d7cf5;
+  }
+  .header img {
+    width: 16mm;
+    height: 16mm;
+    object-fit: contain;
+    border-radius: 2px;
+  }
+  .header .word {
+    font-size: 18pt;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  .header .tagline {
+    margin-top: 1mm;
+    font-size: 8.5pt;
+    color: #5a6470;
+  }
+  .header .doc-label {
+    margin-left: auto;
+    text-align: right;
+    font-size: 7pt;
+    color: #8a93a0;
+  }
+  .lead {
+    margin: 6mm 0 0;
+    font-size: 10pt;
+    line-height: 1.55;
+    color: #2c3238;
+    max-width: 165mm;
+  }
+  h2.section {
+    margin: 7mm 0 3mm;
+    font-size: 8.5pt;
+    color: #3d7cf5;
+  }
+  .units {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm;
+  }
+  .unit {
+    border: 1px solid #e2e5ea;
+    border-top: 3px solid #3d7cf5;
+    padding: 4mm 5mm;
+  }
+  .unit h3 {
+    margin: 0 0 2mm;
+    font-size: 11.5pt;
+  }
+  .unit p {
+    margin: 0 0 3mm;
+    font-size: 8.8pt;
+    line-height: 1.5;
+    color: #3a414a;
+  }
+  .unit ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .unit li {
+    font-size: 8.3pt;
+    color: #4b525a;
+    padding: 1.3mm 0;
+    border-top: 1px solid #eef0f3;
+  }
+  .unit li:first-child { border-top: 0; }
+  .unit li::before {
+    content: '— ';
+    color: #3d7cf5;
+  }
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4mm 6mm;
+  }
+  .cap {
+    border-top: 1px solid #e2e5ea;
+    padding-top: 2mm;
+  }
+  .cap .code {
+    font-size: 6.6pt;
+    color: #9aa2ab;
+  }
+  .cap h4 {
+    margin: 1mm 0 1.2mm;
+    font-size: 9.3pt;
+  }
+  .cap p {
+    margin: 0;
+    font-size: 7.8pt;
+    line-height: 1.45;
+    color: #4b525a;
+  }
+  .materials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2mm;
+    margin-top: 1mm;
+  }
+  .materials span {
+    font-size: 7.6pt;
+    padding: 1.4mm 3mm;
+    border: 1px solid #dde1e6;
+    border-radius: 20px;
+    color: #3a414a;
+  }
+  .process {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5mm;
+  }
+  .process .step .idx {
+    font-size: 8pt;
+    color: #3d7cf5;
+    font-weight: 700;
+  }
+  .process .step h4 {
+    margin: 1mm 0 1.2mm;
+    font-size: 8.6pt;
+  }
+  .process .step p {
+    margin: 0;
+    font-size: 7.4pt;
+    line-height: 1.4;
+    color: #4b525a;
+  }
+  .footer {
+    position: absolute;
+    left: 16mm;
+    right: 16mm;
+    bottom: 10mm;
+    padding-top: 4mm;
+    border-top: 1px solid #e2e5ea;
+  }
+  .contact-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+  }
+  .contact-item .label {
+    font-size: 6.6pt;
+    color: #9aa2ab;
+  }
+  .contact-item .value {
+    margin-top: 0.6mm;
+    font-size: 8.6pt;
+    font-weight: 700;
+    color: #15181b;
+  }
+  .note {
+    margin-top: 4mm;
+    font-size: 6.6pt;
+    color: #aab0b8;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="../public/images/logo-gear.jpg" alt="" />
+      <div>
+        <div class="word">MULTI MEC</div>
+        <div class="tagline">Tornería y mecanizado de precisión · Argentina</div>
+      </div>
+      <div class="doc-label mono">Carta de<br />presentación</div>
+    </div>
+
+    <p class="lead">
+      Multi Mec es una tornería y empresa de mecanizado de precisión de Argentina. Fabricamos
+      piezas a medida y repuestos para fábricas, talleres, industrias y fabricantes de
+      equipamiento fitness, trabajando según plano, muestra o necesidad funcional.
+    </p>
+
+    <h2 class="section mono">Unidades de negocio</h2>
+    <div class="units">
+      <div class="unit">
+        <h3>Multi Mec Industrial</h3>
+        <p>
+          Fabricación de piezas a medida, repuestos industriales y componentes mecanizados para
+          fábricas, talleres e industrias. Trabajamos según plano, muestra o necesidad funcional.
+        </p>
+        <ul>
+          <li>Fabricación de piezas a medida</li>
+          <li>Repuestos industriales</li>
+          <li>Mecanizado según plano o muestra</li>
+          <li>Series cortas y reposición</li>
+        </ul>
+      </div>
+      <div class="unit">
+        <h3>Multi Mec Fitness</h3>
+        <p>
+          Repuestos y piezas especiales para máquinas de gimnasio: bujes, poleas, ruedas,
+          rodillos, ejes, separadores, barras y manijares. Abastecemos a fabricantes y armadores
+          de equipamiento.
+        </p>
+        <ul>
+          <li>Bujes, poleas y rodillos</li>
+          <li>Ruedas y separadores</li>
+          <li>Barras y manijares</li>
+          <li>Venta mayorista a fabricantes</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="section mono">Capacidades</h2>
+    <div class="cap-grid">
+      <div class="cap">
+        <div class="code mono">C-01</div>
+        <h4>Torneado</h4>
+        <p>Piezas cilíndricas, ejes, bujes, roscas y ajustes según plano o muestra.</p>
+      </div>
+      <div class="cap">
+        <div class="code mono">C-02</div>
+        <h4>Fresado</h4>
+        <p>Planeado, ranurado, cajeados y mecanizado de formas con geometrías específicas.</p>
+      </div>
+      <div class="cap">
+        <div class="code mono">C-03</div>
+        <h4>Fabricación a medida</h4>
+        <p>Desarrollo de la pieza a partir de un plano, una muestra o una necesidad funcional.</p>
+      </div>
+      <div class="cap">
+        <div class="code mono">C-04</div>
+        <h4>Repuestos</h4>
+        <p>Reposición de piezas críticas, incluyendo componentes discontinuados.</p>
+      </div>
+      <div class="cap">
+        <div class="code mono">C-05</div>
+        <h4>Series y producción</h4>
+        <p>Desde una pieza única hasta lotes de producción y abastecimiento periódico.</p>
+      </div>
+      <div class="cap">
+        <div class="code mono">C-06</div>
+        <h4>Control dimensional</h4>
+        <p>Verificación de cotas, ajustes y terminaciones antes de cada entrega.</p>
+      </div>
+    </div>
+
+    <h2 class="section mono">Materiales habituales</h2>
+    <div class="materials">
+      <span>Acero al carbono</span>
+      <span>Acero inoxidable</span>
+      <span>Aluminio</span>
+      <span>Bronce</span>
+      <span>Nylon</span>
+      <span>POM</span>
+      <span>Plásticos técnicos</span>
+      <span>Fundición</span>
+    </div>
+
+    <h2 class="section mono">Cómo trabajamos</h2>
+    <div class="process">
+      <div class="step">
+        <div class="idx mono">01</div>
+        <h4>Consulta</h4>
+        <p>Nos contás qué pieza necesitás, para qué equipo y en qué cantidad.</p>
+      </div>
+      <div class="step">
+        <div class="idx mono">02</div>
+        <h4>Análisis y cotización</h4>
+        <p>Revisamos material y medidas. Devolvemos alcance, plazo y condiciones.</p>
+      </div>
+      <div class="step">
+        <div class="idx mono">03</div>
+        <h4>Mecanizado</h4>
+        <p>Fabricamos la pieza con los ajustes y la terminación acordados.</p>
+      </div>
+      <div class="step">
+        <div class="idx mono">04</div>
+        <h4>Control y entrega</h4>
+        <p>Verificamos dimensiones. Coordinamos retiro en taller o envío al país.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="contact-row">
+        <div class="contact-item">
+          <div class="label mono">WhatsApp</div>
+          <div class="value">+54 9 000 000-0000</div>
+        </div>
+        <div class="contact-item">
+          <div class="label mono">Email</div>
+          <div class="value">contacto@multimec.com.ar</div>
+        </div>
+        <div class="contact-item">
+          <div class="label mono">Horario</div>
+          <div class="value">Lunes a viernes · 8 a 17 h</div>
+        </div>
+        <div class="contact-item">
+          <div class="label mono">Cobertura</div>
+          <div class="value">Argentina · envíos a todo el país</div>
+        </div>
+      </div>
+      <p class="note">
+        Documento generado a partir del contenido del sitio multimec.com.ar. Los datos de
+        contacto son provisorios: reemplazar por los definitivos antes de enviar a clientes.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -26,11 +26,17 @@ const unitPhotos: Record<string, { src: string; alt: string }> = {
   fitness: { src: '/images/fitness-sala.jpg', alt: 'Sala de equipamiento de gimnasio' },
 };
 
-const heroViews = [
-  { label: 'Ver Industrial', href: '/industrial' },
-  { label: 'Ver Fitness', href: '/fitness' },
-  { label: 'Ver catálogo', href: '/productos' },
-  { label: 'Ver galería', href: '/galeria' },
+const heroSplit = [
+  {
+    label: 'Repuestos Industriales',
+    href: '/industrial',
+    photo: '/images/industrial-mordaza.jpg',
+  },
+  {
+    label: 'Fitness',
+    href: '/fitness',
+    photo: '/images/fitness-sala.jpg',
+  },
 ];
 
 const tickerItems = [
@@ -69,41 +75,45 @@ const tickerItems = [
 
     <div class="container">
       <div class="hero__inner">
-        <p class="eyebrow hero__eyebrow">
-          <span class="eyebrow__index">MM /</span>
-          Tornería · Mecanizado de precisión · Argentina
-        </p>
-
-        <h1>Mecanizado de precisión<span class="accent">.</span></h1>
-
-        <p class="hero__lead">
-          Piezas a medida y repuestos para industria y equipamiento fitness, según plano o
-          muestra.
-        </p>
+        <h1>Repuestos y reparaciones de maquinarias industriales<span class="accent">.</span></h1>
 
         <div class="hero__actions">
-          <Button href="/contacto" size="lg">Solicitar presupuesto</Button>
-          <Button href="#unidades" variant="outline" size="lg" icon="chevron-down" iconPosition="right">
-            Ver unidades
+          <Button href="/contacto" variant="ghost" size="sm">Solicitar presupuesto</Button>
+          <Button
+            href="/docs/carta-presentacion-multimec.pdf"
+            variant="ghost"
+            size="sm"
+            icon="file"
+            iconPosition="left"
+            external
+          >
+            Carta de presentación
           </Button>
         </div>
       </div>
     </div>
 
-    <nav class="hero__views" aria-label="Accesos rápidos">
-      <div class="container">
-        <div class="hero__views-inner">
-          {
-            heroViews.map((item) => (
-              <a class="hero__view-link" href={item.href}>
-                {item.label}
-                <Icon name="arrow-up-right" size={13} />
-              </a>
-            ))
-          }
-        </div>
-      </div>
-    </nav>
+    <div class="hero__split">
+      {
+        heroSplit.map((item) => (
+          <a class="hero__split-item" href={item.href}>
+            <img
+              class="hero__split-photo"
+              src={item.photo}
+              alt=""
+              loading="eager"
+              width="960"
+              height="640"
+            />
+            <span class="hero__split-overlay" aria-hidden="true" />
+            <span class="hero__split-label">
+              {item.label}
+              <Icon name="arrow-up-right" size={18} />
+            </span>
+          </a>
+        ))
+      }
+    </div>
   </section>
 
   <script>

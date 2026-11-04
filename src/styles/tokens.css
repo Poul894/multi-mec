@@ -22,13 +22,13 @@
   --steel: #8d99a1;
   --steel-light: #b7c0c6;
 
-  /* Accents */
-  --orange: #ff5a1f;
-  --orange-2: #ff7c4a;
-  --orange-deep: #b8420f;
-  --blue: #6f9cb7;
-  --blue-2: #93b9cd;
-  --blue-deep: #3a6f8d;
+  /* Accents — single blue accent system (palette: azul · negro · blanco) */
+  --orange: #3d7cf5;
+  --orange-2: #6a9bff;
+  --orange-deep: #1d4fc4;
+  --blue: #3d7cf5;
+  --blue-2: #6a9bff;
+  --blue-deep: #1d4fc4;
   --green: #25d366;
 
   /* Lines */
