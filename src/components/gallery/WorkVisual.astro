@@ -1,0 +1,80 @@
+---
+import PartDrawing from '../ui/PartDrawing.astro';
+import type { WorkItem } from '../../data/works';
+
+interface Props {
+  work: WorkItem;
+}
+
+const { work } = Astro.props;
+const accent = work.unit === 'fitness' ? 'blue' : 'orange';
+
+const grid = Array.from({ length: 11 }, (_, index) => 40 + index * 72);
+const rings = Array.from({ length: 10 }, (_, index) => 90 + index * 42);
+const hatch = Array.from({ length: 20 }, (_, index) => -520 + index * 68);
+const knurlA = Array.from({ length: 18 }, (_, index) => -400 + index * 64);
+const knurlB = Array.from({ length: 18 }, (_, index) => 40 + index * 64);
+---
+
+<div class="work-visual" style={`--part-accent: var(--${accent});`}>
+  <svg
+    class="work-visual__bg"
+    viewBox="0 0 800 600"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    fill="none"
+  >
+    {
+      work.texture === 'grid' && (
+        <g stroke="currentColor" stroke-width="1" opacity=".35">
+          {grid.map((value) => (
+            <line x1={value} y1="0" x2={value} y2="600" />
+          ))}
+          {grid.map((value) => (
+            <line x1="0" y1={value} x2="800" y2={value} />
+          ))}
+        </g>
+      )
+    }
+    {
+      work.texture === 'rings' && (
+        <g stroke="currentColor" stroke-width="1" opacity=".28">
+          {rings.map((radius) => (
+            <circle cx="660" cy="120" r={radius} />
+          ))}
+          <circle cx="660" cy="120" r="16" />
+        </g>
+      )
+    }
+    {
+      work.texture === 'hatch' && (
+        <g stroke="currentColor" stroke-width="1" opacity=".3">
+          {hatch.map((offset) => (
+            <line x1={offset} y1="600" x2={offset + 600} y2="0" />
+          ))}
+        </g>
+      )
+    }
+    {
+      work.texture === 'knurl' && (
+        <g stroke="currentColor" stroke-width="1" opacity=".24">
+          {knurlA.map((offset) => (
+            <line x1={offset} y1="600" x2={offset + 600} y2="0" />
+          ))}
+          {knurlB.map((offset) => (
+            <line x1={offset} y1="0" x2={offset + 600} y2="600" />
+          ))}
+        </g>
+      )
+    }
+    <g stroke="currentColor" stroke-width="1" opacity=".55">
+      <path d="M24 64V24h40M736 24h40v40M776 536v40h-40M64 576H24v-40" />
+    </g>
+    <circle cx="736" cy="64" r="3" fill="var(--part-accent)" opacity=".8" />
+  </svg>
+  <div class="work-visual__part">
+    <PartDrawing type={work.drawing} accent={accent} />
+  </div>
+  <span class="work-visual__tag">Registro técnico</span>
+  <span class="work-visual__cross" aria-hidden="true"></span>
+</div>

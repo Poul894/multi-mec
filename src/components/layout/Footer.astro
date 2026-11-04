@@ -1,0 +1,82 @@
+---
+import Logo from './Logo.astro';
+import Icon from '../ui/Icon.astro';
+import { navigation, site, whatsappLink } from '../../data/site';
+
+const year = new Date().getFullYear();
+const units = navigation.filter((item) => ['Industrial', 'Fitness'].includes(item.label));
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <Logo />
+        <p>
+          Tornería y mecanizado de precisión. Piezas a medida, repuestos industriales y
+          componentes para equipamiento fitness.
+        </p>
+        <span class="tag tag--orange tag--dot">Fabricación a medida</span>
+      </div>
+
+      <div class="footer__col">
+        <h4>Unidades</h4>
+        <div class="footer__links">
+          {
+            units.map((item) => (
+              <a href={item.href}>{item.label}</a>
+            ))
+          }
+          <a href="/productos">Catálogo</a>
+          <a href="/galeria">Galería</a>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h4>Empresa</h4>
+        <div class="footer__links">
+          <a href="/nosotros">Nosotros</a>
+          <a href="/envios">Envíos</a>
+          <a href="/contacto">Contacto</a>
+          <a href="/privacidad">Privacidad</a>
+        </div>
+      </div>
+
+      <div class="footer__col footer__col--contact">
+        <h4>Contacto</h4>
+        <div class="footer__contact">
+          <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" size={15} />
+            <span>WhatsApp<br />{site.contact.whatsappDisplay}</span>
+          </a>
+          <a href={`mailto:${site.contact.email}`}>
+            <Icon name="mail" size={15} />
+            <span>{site.contact.email}</span>
+          </a>
+          <span>
+            <Icon name="clock" size={15} />
+            <span>{site.contact.hours}</span>
+          </span>
+          <span>
+            <Icon name="truck" size={15} />
+            <span>Envíos a todo el país</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__wordmark" aria-hidden="true">MULTI MEC</div>
+
+    <div class="footer__bottom">
+      <span>© {year} Multi Mec · Tornería y mecanizado de precisión</span>
+      <div class="footer__bottom-links">
+        <span>Argentina</span>
+        <a href="/privacidad">Privacidad</a>
+        <a class="to-top" href="#top">
+          Volver arriba
+          <Icon name="arrow-up-right" size={12} />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

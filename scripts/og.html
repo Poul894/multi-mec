@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Archivo';
+        src: url('../node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2') format('woff2');
+        font-weight: 100 900;
+        font-stretch: 62% 125%;
+        font-display: block;
+      }
+
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: url('../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 800;
+        font-display: block;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #07080a;
+      }
+
+      body {
+        font-family: 'Archivo', sans-serif;
+        color: #f2f0ea;
+      }
+
+      .og {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 78% 38%, rgba(255, 90, 31, 0.14), transparent 38%),
+          linear-gradient(118deg, #07080a 42%, #0f1215 100%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(235, 239, 241, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(235, 239, 241, 0.055) 1px, transparent 1px);
+        background-size: 48px 48px;
+        -webkit-mask-image: radial-gradient(circle at 70% 50%, black, transparent 78%);
+        mask-image: radial-gradient(circle at 70% 50%, black, transparent 78%);
+      }
+
+      .frame {
+        position: absolute;
+        inset: 26px;
+        border: 1px solid rgba(235, 239, 241, 0.13);
+      }
+
+      .frame::before,
+      .frame::after {
+        content: '';
+        position: absolute;
+        width: 26px;
+        height: 26px;
+      }
+
+      .frame::before {
+        left: -1px;
+        top: -1px;
+        border-left: 2px solid #ff5a1f;
+        border-top: 2px solid #ff5a1f;
+      }
+
+      .frame::after {
+        right: -1px;
+        bottom: -1px;
+        border-right: 2px solid #ff5a1f;
+        border-bottom: 2px solid #ff5a1f;
+      }
+
+      .top {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        top: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand svg {
+        width: 44px;
+        height: 44px;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1;
+      }
+
+      .brand span {
+        display: block;
+        margin-top: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.24em;
+        color: #8d99a1;
+      }
+
+      .tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: #6b747b;
+      }
+
+      .content {
+        position: absolute;
+        left: 64px;
+        top: 152px;
+        width: 760px;
+        z-index: 3;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #98a2a9;
+      }
+
+      .eyebrow::before {
+        content: '';
+        width: 30px;
+        height: 1px;
+        background: #ff5a1f;
+      }
+
+      h1 {
+        margin-top: 22px;
+        font-size: 78px;
+        font-weight: 700;
+        font-stretch: 108%;
+        letter-spacing: -0.045em;
+        line-height: 0.94;
+      }
+
+      h1 em {
+        font-style: normal;
+        color: #ff5a1f;
+      }
+
+      .units {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      .units span {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 8px 14px;
+        border: 1px solid rgba(235, 239, 241, 0.16);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #d9dee1;
+      }
+
+      .units b {
+        color: #ff5a1f;
+        font-weight: 500;
+      }
+
+      .units span:last-child b {
+        color: #6f9cb7;
+      }
+
+      .visual {
+        position: absolute;
+        right: 26px;
+        top: 86px;
+        width: 430px;
+        height: 470px;
+        z-index: 2;
+        color: #9fb0b9;
+      }
+
+      .visual svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .footer {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid rgba(235, 239, 241, 0.12);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #6b747b;
+        z-index: 3;
+      }
+
+      .footer span:last-child {
+        color: #98a2a9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="og">
+      <div class="grid"></div>
+      <div class="frame"></div>
+
+      <header class="top">
+        <div class="brand">
+          <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <path d="M1 1h32.5L43 11.5V43H1V1Z" stroke="#f2f0ea" stroke-width="1.4" />
+            <path d="M9 33V13.5l13 10.5 13-10.5V33" stroke="#f2f0ea" stroke-width="2.2" />
+            <path d="M1 38.5h6M37 5.5v6" stroke="#ff5a1f" stroke-width="1.4" />
+            <rect x="37" y="37" width="6" height="6" fill="#ff5a1f" />
+          </svg>
+          <div>
+            <strong>MULTI MEC</strong>
+            <span>TORNERÍA · MECANIZADO</span>
+          </div>
+        </div>
+        <span class="tag">MM / SITIO OFICIAL</span>
+      </header>
+
+      <main class="content">
+        <p class="eyebrow">Tornería · Mecanizado de precisión · Argentina</p>
+        <h1>Precisión que<br />mantiene la industria<br /><em>en marcha.</em></h1>
+        <div class="units">
+          <span><b>01</b> Industrial</span>
+          <span><b>02</b> Fitness</span>
+        </div>
+      </main>
+
+      <aside class="visual" aria-hidden="true">
+        <svg viewBox="0 0 430 470" fill="none">
+          <defs>
+            <pattern id="og-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+              <path d="M34 0H0V34" stroke="currentColor" stroke-opacity=".1" />
+            </pattern>
+          </defs>
+          <rect x="40" y="40" width="350" height="350" fill="url(#og-grid)" />
+          <circle cx="215" cy="215" r="150" stroke="currentColor" stroke-opacity=".18" />
+          <circle cx="215" cy="215" r="108" stroke="currentColor" stroke-opacity=".1" stroke-dasharray="3 7" />
+
+          <g stroke="#c9d3d8" stroke-width="1.5">
+            <path d="M100 200h34v30h-34z" fill="#14181c" />
+            <path d="M134 188h48v54h-48z" fill="#181d21" />
+            <path d="M182 172h78v86h-78z" fill="#1c2227" />
+            <path d="M260 190h48v50h-48z" fill="#181d21" />
+            <path d="M308 201h30v28h-30z" fill="#14181c" />
+          </g>
+          <g stroke="#ff5a1f" stroke-width="1.2">
+            <path d="M100 172h238" stroke-dasharray="4 5" stroke-opacity=".55" />
+            <path d="M100 166v12M338 166v12" />
+            <path d="M83 188v54M77 188h12M77 242h12" />
+            <path d="M182 158v12M260 158v12" />
+          </g>
+          <g fill="#ff5a1f">
+            <path d="m100 172-5 3v-6l5 3ZM338 172l5-3v6l-5-3Z" />
+            <circle cx="144" cy="158" r="2" />
+            <circle cx="286" cy="158" r="2" />
+          </g>
+          <g stroke="#ff5a1f" stroke-width="1.2" stroke-opacity=".6">
+            <path d="M215 112v206" stroke-dasharray="3 6" />
+            <path d="M202 112h26M202 318h26" />
+          </g>
+          <g
+            fill="currentColor"
+            font-family="'JetBrains Mono', monospace"
+            font-size="8"
+            letter-spacing="1.5"
+            opacity=".65"
+          >
+            <text x="96" y="152">Ø EXTERIOR</text>
+            <text x="58" y="220" transform="rotate(-90 58 220)">LONGITUD</text>
+            <text x="280" y="342">EJE ESCALONADO</text>
+            <text x="280" y="356" fill="#ff5a1f">MM-IND / 001</text>
+          </g>
+          <g fill="currentColor" opacity=".45">
+            <rect x="380" y="86" width="5" height="5" />
+            <rect x="44" y="378" width="5" height="5" />
+          </g>
+        </svg>
+      </aside>
+
+      <footer class="footer">
+        <span>Piezas a medida · Repuestos · Series</span>
+        <span>Industrial + Fitness · Envíos a todo el país</span>
+      </footer>
+    </div>
+  </body>
+</html>

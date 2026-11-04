@@ -1,0 +1,188 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/ui/Breadcrumbs.astro';
+import Button from '../../components/ui/Button.astro';
+import Icon from '../../components/ui/Icon.astro';
+import PartDrawing from '../../components/ui/PartDrawing.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import ProductCard from '../../components/catalog/ProductCard.astro';
+
+import { getProduct, products, type Product } from '../../data/products';
+import { site, whatsappLink } from '../../data/site';
+
+export function getStaticPaths() {
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product },
+  }));
+}
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const accent = product.unit === 'fitness' ? 'blue' : 'orange';
+const unitLabel = product.unit === 'fitness' ? 'Multi Mec Fitness' : 'Multi Mec Industrial';
+const unitHref = `/productos?unidad=${product.unit}`;
+const categoryHref = `/productos?unidad=${product.unit}&categoria=${product.categorySlug}`;
+
+const related = products
+  .filter((item) => item.slug !== product.slug && item.unit === product.unit)
+  .sort((a, b) => Number(b.categorySlug === product.categorySlug) - Number(a.categorySlug === product.categorySlug))
+  .slice(0, 3);
+
+const quoteHref = `/contacto?pieza=${encodeURIComponent(product.name)}&unidad=${product.unit}&tipo=${encodeURIComponent(
+  product.unit === 'fitness' ? 'Producción / mayorista' : 'Presupuesto de fabricación',
+)}`;
+
+const whatsappHref = whatsappLink(
+  `Hola Multi Mec, quisiera consultar por ${product.name} (${product.code}).`,
+);
+
+const base = Astro.site ?? new URL(Astro.url.origin);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  sku: product.code,
+  description: product.description,
+  category: `${unitLabel} · ${product.category}`,
+  url: new URL(`/productos/${product.slug}`, base).toString(),
+  brand: {
+    '@type': 'Brand',
+    name: site.name,
+  },
+  manufacturer: {
+    '@type': 'Organization',
+    name: site.name,
+    url: base.origin,
+  },
+  additionalProperty: product.specs.map((spec) => ({
+    '@type': 'PropertyValue',
+    name: spec.label,
+    value: spec.value,
+  })),
+};
+---
+
+<BaseLayout
+  title={product.name}
+  description={`${product.short} Fabricación según plano o muestra. Consultá por ${product.name} (${product.code}).`}
+  image={product.image ?? site.seo.ogImage}
+  structuredData={schema}
+>
+  <section class="product-detail" style={`--accent: var(--${accent});`}>
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: 'Productos', href: '/productos' },
+          { label: product.name },
+        ]}
+      />
+
+      <div class="product-detail__grid" style="margin-top: 28px;">
+        <div class="product-detail__media-wrap" data-reveal>
+          <div class="product-detail__media corner-frame">
+            {
+              product.image ? (
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  width="1200"
+                  height="900"
+                  decoding="async"
+                />
+              ) : (
+                <PartDrawing type={product.drawing} accent={accent} />
+              )
+            }
+            <span class="product-detail__media-note">
+              {product.image ? `MM / ${product.code}` : 'Esquema técnico · no escala'}
+            </span>
+          </div>
+        </div>
+
+        <div class="product-detail__content" data-reveal>
+          <div class="product-detail__meta">
+            <span class:list={['tag', product.unit === 'fitness' ? 'tag--blue' : 'tag--orange']}>
+              {unitLabel}
+            </span>
+            <a class="tag" href={categoryHref}>{product.category}</a>
+            <span class="tag tag--solid">{product.code}</span>
+          </div>
+
+          <h1>{product.name}</h1>
+          <p class="product-detail__short">{product.short}</p>
+          <p class="product-detail__desc">{product.description}</p>
+
+          <div class="product-detail__actions">
+            <Button href={quoteHref} size="lg">Solicitar presupuesto</Button>
+            <Button href={whatsappHref} variant="outline" size="lg" external icon="whatsapp">
+              Consultar por WhatsApp
+            </Button>
+          </div>
+          <p class="product-detail__micro">
+            Fabricación según plano, muestra o especificación. La cotización se define según
+            material, cantidad y terminación.
+          </p>
+
+          <div class="spec-block">
+            <p class="spec-block__title">Datos técnicos</p>
+            <dl class="spec-list">
+              {
+                product.specs.map((spec) => (
+                  <div class="spec-item">
+                    <dt>{spec.label}</dt>
+                    <dd>{spec.value}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+
+          <div class="spec-block">
+            <p class="spec-block__title">Aplicaciones habituales</p>
+            <ul class="application-list">
+              {
+                product.applications.map((application) => (
+                  <li>
+                    <Icon name="check" size={13} />
+                    {application}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="note-panel">
+            <strong>¿Necesitás una pieza similar?</strong> Podemos fabricarla a partir de tu
+            plano, una muestra o las medidas del equipo. Coordinamos envíos a todo el país.
+          </div>
+        </div>
+      </div>
+
+      <div class="related">
+        <div class="related__head">
+          <h2>Otras piezas de {unitLabel}</h2>
+          <a class="link-arrow" href={unitHref}>
+            Ver catálogo completo
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+        <div class="related-grid">
+          {related.map((item) => <ProductCard product={item} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Presupuesto"
+    title="Pasá de la ficha a <span class='accent'>la pieza real.</span>"
+    text={`Contanos qué necesitás de ${product.name.toLowerCase()}, la cantidad y si tenés plano o muestra. Te respondemos con una propuesta concreta.`}
+    accent={accent}
+    primaryHref={quoteHref}
+  />
+</BaseLayout>

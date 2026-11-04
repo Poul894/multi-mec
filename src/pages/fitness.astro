@@ -1,0 +1,305 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import PartDrawing from '../components/ui/PartDrawing.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import CtaBand from '../components/ui/CtaBand.astro';
+import ProductCard from '../components/catalog/ProductCard.astro';
+import GalleryGrid from '../components/gallery/GalleryGrid.astro';
+
+import { getUnit } from '../data/units';
+import { categoriesByUnit, productsByUnit, type DrawingType } from '../data/products';
+import { worksByUnit } from '../data/works';
+import { faqs } from '../data/content';
+import { site, whatsappLink } from '../data/site';
+
+const unit = getUnit('fitness');
+const categories = categoriesByUnit('fitness');
+const products = productsByUnit('fitness');
+const works = worksByUnit('fitness');
+const fitnessFaqs = [faqs[0], faqs[2], faqs[5], faqs[4]];
+
+const familyDrawings: Record<string, DrawingType> = {
+  bujes: 'bushing',
+  poleas: 'pulley',
+  'ruedas-rodillos': 'wheel',
+  'ejes-separadores': 'spacer',
+  'barras-manijares': 'bar',
+  especiales: 'custom',
+};
+
+const reasons = [
+  {
+    icon: 'parts',
+    code: 'F-01',
+    title: 'Reposición',
+    description:
+      'Bujes, poleas y ruedas de desgaste para recuperar máquinas que ya están en funcionamiento.',
+  },
+  {
+    icon: 'quality',
+    code: 'F-02',
+    title: 'Medidas compatibles',
+    description:
+      'Fabricamos según la muestra o el plano del equipo para que la pieza encaje sin adaptaciones.',
+  },
+  {
+    icon: 'series',
+    code: 'F-03',
+    title: 'Producción',
+    description:
+      'Series para fabricantes y armadores de equipamiento, con entregas coordinadas según consumo.',
+  },
+  {
+    icon: 'custom',
+    code: 'F-04',
+    title: 'Desarrollos',
+    description:
+      'Piezas nuevas o fuera de catálogo para prototipos, rediseños y adaptaciones de máquinas.',
+  },
+];
+
+const base = Astro.site ?? new URL(Astro.url.origin);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Multi Mec Fitness — Componentes para equipamiento',
+  serviceType: [
+    'Bujes para máquinas de gimnasio',
+    'Poleas para equipamiento fitness',
+    'Ruedas y rodillos',
+    'Ejes y separadores',
+    'Barras y manijares',
+    'Venta mayorista de piezas',
+  ],
+  description:
+    'Fabricación de componentes mecanizados para equipamiento fitness: bujes, poleas, ruedas, rodillos, ejes, separadores, barras y manijares. Reposición y producción para fabricantes.',
+  provider: {
+    '@type': 'Organization',
+    name: site.name,
+    url: base.origin,
+  },
+  areaServed: {
+    '@type': 'Country',
+    name: 'Argentina',
+  },
+};
+---
+
+<BaseLayout
+  title="Multi Mec Fitness"
+  description="Componentes mecanizados para equipamiento fitness: bujes, poleas, ruedas, rodillos, ejes, separadores, barras y manijares. Reposición y venta mayorista a fabricantes."
+  structuredData={schema}
+>
+  <PageHero
+    index="02"
+    eyebrow="Multi Mec Fitness"
+    title="Componentes para <span class='accent-blue'>equipamiento fitness.</span>"
+    lead="Piezas mecanizadas para máquinas de gimnasio: bujes, poleas, ruedas, rodillos, ejes, separadores, barras y manijares. Abastecemos a fabricantes, armadores y talleres de mantenimiento."
+    drawing="wheel"
+    accent="blue"
+    breadcrumbs={[{ label: 'Fitness' }]}
+    meta={['Reposición y producción', 'Venta mayorista', 'Envíos a todo el país']}
+    photo="/images/fitness-sala.jpg"
+    photoAlt="Sala de equipamiento fitness"
+  >
+    <Button href="/contacto?unidad=fitness" size="lg">Solicitar presupuesto</Button>
+    <Button href="/productos?unidad=fitness" variant="outline" size="lg" icon="arrow-right">
+      Ver catálogo fitness
+    </Button>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="01"
+        eyebrow="Por qué Multi Mec Fitness"
+        title="Piezas que el equipo usa <span class='accent-blue'>todos los días.</span>"
+        lead="El equipamiento fitness trabaja con cargas, movimiento y desgaste constante. Fabricamos componentes con el material y el ajuste que cada punto de la máquina necesita."
+        accent="blue"
+      />
+
+      <div class="cap-grid" style="--accent: var(--blue);">
+        {
+          reasons.map((item, index) => (
+            <article class="cap-card" data-reveal style={`--reveal-delay: ${index * 60}ms;`}>
+              <div class="cap-card__top">
+                <Icon name={item.icon} size={38} class="cap-card__icon" />
+                <span class="cap-card__code">{item.code}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="02"
+        eyebrow="Familias de piezas"
+        title="Todo lo que va <span class='accent-blue'>en la máquina.</span>"
+        lead="Organizamos la producción por familias de componentes. Entrá a cada línea para ver las piezas, los materiales habituales y las aplicaciones."
+        accent="blue"
+      />
+
+      <div class="family-grid">
+        {
+          categories.map((category) => (
+            <article class="family-card" data-reveal>
+              <div class="family-card__top">
+                <span>{category.name}</span>
+                <Icon name="arrow-up-right" size={14} />
+              </div>
+              <div class="family-card__visual">
+                <PartDrawing type={familyDrawings[category.slug] ?? 'custom'} accent="blue" />
+              </div>
+              <h3>{category.name}</h3>
+              <p>{category.description}</p>
+              <a
+                class="family-card__link"
+                href={`/productos?unidad=fitness&categoria=${category.slug}`}
+                aria-label={`Ver piezas de ${category.name}`}
+              />
+            </article>
+          ))
+        }
+      </div>
+
+      <p class="unit-note">
+        <Icon name="package" size={14} />
+        <span>¿No encontrás la pieza? También fabricamos componentes fuera de catálogo.</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="story-grid" style="--accent: var(--blue);">
+        <div class="story-copy" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">03 /</span> Venta mayorista</p>
+          <h2>Un proveedor para tu línea de <span class="accent-blue">armado.</span></h2>
+          <p>
+            Si fabricás o armás equipamiento fitness, podés integrar nuestras piezas a tu
+            producción. Trabajamos con reposición programada, lotes según consumo y piezas
+            desarrolladas junto a tu equipo técnico.
+          </p>
+          <ul class="check-list">
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Reposición:</strong> piezas de desgaste con entregas coordinadas.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Producción:</strong> lotes para equipos nuevos y armado seriado.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Desarrollo:</strong> componentes a medida para nuevos modelos.</span>
+            </li>
+          </ul>
+          <div class="story-points">
+            <span>Fabricantes</span>
+            <span>Armadores</span>
+            <span>Talleres</span>
+            <span>Marcas propias</span>
+          </div>
+        </div>
+
+        <div class="story-visual corner-frame" data-reveal style="--accent: var(--blue);">
+          <PartDrawing type="pulley" accent="blue" />
+        </div>
+      </div>
+
+      <div class="note-panel note-panel--blue" data-reveal>
+        <strong>¿Necesitás una muestra antes de producir?</strong> Podemos fabricar una pieza
+        piloto para que valides medidas, ajuste y funcionamiento antes de avanzar con el lote.
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="04"
+        eyebrow="Catálogo fitness"
+        title="Las piezas más <span class='accent-blue'>consultadas.</span>"
+        lead="Bujes, poleas, ruedas, separadores y barras con sus datos técnicos. Cada ficha se fabrica según muestra o plano."
+        accent="blue"
+      />
+
+      <div class="product-grid" style="--accent: var(--blue);">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/productos?unidad=fitness">
+          Ver catálogo fitness completo
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="05"
+        eyebrow="Trabajos fitness"
+        title="Componentes en <span class='accent-blue'>producción.</span>"
+        lead="Una muestra de piezas fabricadas para equipamiento: reposición, series y desarrollos especiales."
+        accent="blue"
+      />
+
+      <div data-reveal>
+        <GalleryGrid items={works} />
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/galeria?unidad=fitness">
+          Ver galería fitness
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <div class="faq-layout" style="--accent: var(--blue);">
+        <div class="faq-intro">
+          <p class="eyebrow"><span class="eyebrow__index">06 /</span> Preguntas frecuentes</p>
+          <h2>Dudas de <span class="accent-blue">fabricantes.</span></h2>
+          <p class="lead">
+            Lo que más nos consultan quienes fabrican, arman o mantienen equipamiento fitness.
+          </p>
+          <Button
+            href={whatsappLink('Hola Multi Mec, tengo una consulta sobre componentes para fitness.')}
+            variant="outline"
+            class="faq-intro__cta"
+            external
+            icon="whatsapp"
+          >
+            Consultar por WhatsApp
+          </Button>
+        </div>
+        <FaqList faqs={fitnessFaqs} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Fitness"
+    title="Armemos el próximo <span class='accent-blue'>lote.</span>"
+    text="Contanos qué pieza necesitás, para qué máquina y en qué cantidad. Si tenés muestra o plano, adjuntalo en la consulta."
+    accent="blue"
+    primaryHref="/contacto?unidad=fitness"
+  />
+</BaseLayout>

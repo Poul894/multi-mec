@@ -1,0 +1,503 @@
+---
+import type { DrawingType } from '../../data/products';
+
+interface Props {
+  type: DrawingType;
+  accent?: 'orange' | 'blue';
+  class?: string;
+}
+
+const { type, accent = 'orange', class: className = '' } = Astro.props;
+
+// IDs para patrones y marcadores (render estático).
+const uid = `pd-${Math.random().toString(36).slice(2, 8)}`;
+
+const gearTeeth = 16;
+const gearStep = (Math.PI * 2) / gearTeeth;
+const gearPoints: string[] = [];
+for (let i = 0; i < gearTeeth; i++) {
+  const a = i * gearStep - Math.PI / 2;
+  const points = [
+    [a - gearStep * 0.27, 158],
+    [a + gearStep * 0.27, 158],
+    [a + gearStep * 0.4, 128],
+    [a + gearStep * 0.6, 128],
+  ];
+  points.forEach(([angle, radius], index) => {
+    const x = 400 + Math.cos(angle) * radius;
+    const y = 300 + Math.sin(angle) * radius;
+    gearPoints.push(`${index === 0 && i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
+  });
+}
+const gearPath = `${gearPoints.join(' ')} Z`;
+
+const pulleyHoles = [-90, -18, 54, 126, 198].map((deg) => {
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: (400 + Math.cos(rad) * 94).toFixed(1),
+    y: (300 + Math.sin(rad) * 94).toFixed(1),
+  };
+});
+
+const flangeHoles = [0, 60, 120, 180, 240, 300].map((deg) => {
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: (400 + Math.cos(rad) * 120).toFixed(1),
+    y: (300 + Math.sin(rad) * 120).toFixed(1),
+  };
+});
+---
+
+<svg
+  class:list={['part', className]}
+  style={`--part-accent: var(--${accent});`}
+  viewBox="0 0 800 600"
+  role="presentation"
+  aria-hidden="true"
+  fill="none"
+>
+  <defs>
+    <marker
+      id={`${uid}-arrow`}
+      viewBox="0 0 10 10"
+      refX="9"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto-start-reverse"
+    >
+      <path d="M0.5 1 9.5 5 0.5 9" stroke="var(--part-accent)" stroke-width="1.4" fill="none" />
+    </marker>
+    <pattern id={`${uid}-hatch`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="8" stroke="currentColor" stroke-width="1" opacity=".5" />
+    </pattern>
+    <pattern id={`${uid}-knurl`} width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="12" stroke="currentColor" stroke-width="1.2" opacity=".65" />
+      <line x1="0" y1="0" x2="12" y2="0" stroke="currentColor" stroke-width="1.2" opacity=".65" />
+    </pattern>
+  </defs>
+
+  {type === 'shaft' && (
+    <g>
+      <line class="axis" x1="110" y1="300" x2="690" y2="300" />
+      <path class="outline" d="M150 255 H280 V225 H450 V245 H560 V265 H650 V335 H560 V355 H450 V375 H280 V345 H150 Z" />
+      <path class="edge" d="M150 255 L162 267 M150 345 L162 333 M650 265 L638 277 M650 335 L638 323" />
+      <path class="accent" d="M330 225 V240 H404 V225" />
+      <path class="hatch" d="M330 240 H404 V252 H330 Z" fill={`url(#${uid}-hatch)`} opacity=".45" />
+      <line class="thin" x1="178" y1="286" x2="178" y2="314" />
+      <line class="thin" x1="620" y1="286" x2="620" y2="314" />
+      <circle class="center" cx="400" cy="300" r="3" />
+      <g class="dim">
+        <line class="dim-line" x1="150" y1="160" x2="650" y2="160" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="150" y1="160" x2="150" y2="245" />
+        <line class="ext" x1="650" y1="160" x2="650" y2="255" />
+        <text x="400" y="146" text-anchor="middle">LONGITUD S/ PLANO</text>
+      </g>
+      <g class="dim">
+        <path class="leader" d="M650 300 H710" />
+        <text x="716" y="304">Ø S/ PLANO</text>
+      </g>
+      <text class="tag" x="420" y="232">CHAVETERO</text>
+      <text class="tag" x="100" y="505">MM / EJE ESCALONADO</text>
+      <text class="tag tag--dim" x="700" y="505" text-anchor="end">VISTA LATERAL</text>
+    </g>
+  )}
+
+  {type === 'bushing' && (
+    <g>
+      <line class="axis" x1="210" y1="300" x2="590" y2="300" />
+      <line class="axis" x1="400" y1="110" x2="400" y2="490" />
+      <circle class="outline" cx="400" cy="300" r="150" />
+      <circle class="outline" cx="400" cy="300" r="112" />
+      <circle class="outline" cx="400" cy="300" r="62" />
+      <circle class="thin dashed" cx="400" cy="300" r="132" />
+      {[45, 135, 225, 315].map((deg) => {
+        const rad = (deg * Math.PI) / 180;
+        return (
+          <circle
+            class="hole"
+            cx={(400 + Math.cos(rad) * 132).toFixed(1)}
+            cy={(300 + Math.sin(rad) * 132).toFixed(1)}
+            r="12"
+          />
+        );
+      })}
+      <path class="accent" d="M459.9 284 L544.9 261.2 A150 150 0 0 1 544.9 338.8 L459.9 316 A62 62 0 0 0 459.9 284 Z" />
+      <path class="hatch" d="M459.9 284 L544.9 261.2 A150 150 0 0 1 544.9 338.8 L459.9 316 A62 62 0 0 0 459.9 284 Z" fill={`url(#${uid}-hatch)`} opacity=".4" />
+      <g class="dim">
+        <line class="dim-line" x1="250" y1="150" x2="550" y2="150" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="250" y1="150" x2="300" y2="230" />
+        <line class="ext" x1="550" y1="150" x2="500" y2="230" />
+        <text x="400" y="136" text-anchor="middle">Ø EXTERIOR S/ PLANO</text>
+      </g>
+      <g class="dim">
+        <path class="leader" d="M430 338 L510 420 H600" />
+        <text x="606" y="424">Ø INTERIOR</text>
+      </g>
+      <text class="tag" x="180" y="515">MM / BUJE</text>
+      <text class="tag tag--dim" x="620" y="515" text-anchor="end">VISTA FRONTAL · SECCIÓN</text>
+    </g>
+  )}
+
+  {type === 'pulley' && (
+    <g>
+      <line class="axis" x1="200" y1="300" x2="600" y2="300" />
+      <line class="axis" x1="400" y1="100" x2="400" y2="500" />
+      <circle class="outline" cx="400" cy="300" r="158" />
+      <circle class="outline" cx="400" cy="300" r="140" />
+      <circle class="thin" cx="400" cy="300" r="126" />
+      <circle class="outline" cx="400" cy="300" r="55" />
+      <circle class="outline" cx="400" cy="300" r="30" />
+      <path class="accent" d="M390 300 V270 H410 V300" />
+      <circle class="thin dashed" cx="400" cy="300" r="94" />
+      {pulleyHoles.map((hole) => (
+        <circle class="hole" cx={hole.x} cy={hole.y} r="19" />
+      ))}
+      <g class="dim">
+        <line class="dim-line" x1="242" y1="145" x2="558" y2="145" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="242" y1="145" x2="300" y2="225" />
+        <line class="ext" x1="558" y1="145" x2="500" y2="225" />
+        <text x="400" y="131" text-anchor="middle">Ø EXTERIOR</text>
+      </g>
+      <g class="dim">
+        <path class="leader" d="M542 200 L610 160 H690" />
+        <text x="696" y="164">CANAL S/ CORREA</text>
+      </g>
+      <text class="tag" x="180" y="515">MM / POLEA</text>
+      <text class="tag tag--dim" x="620" y="515" text-anchor="end">VISTA FRONTAL</text>
+    </g>
+  )}
+
+  {type === 'wheel' && (
+    <g>
+      <line class="axis" x1="220" y1="300" x2="580" y2="300" />
+      <line class="axis" x1="400" y1="120" x2="400" y2="480" />
+      <circle class="outline" cx="400" cy="300" r="156" />
+      <circle class="outline accent" cx="400" cy="300" r="138" />
+      <circle class="thin" cx="400" cy="300" r="128" />
+      <circle class="outline" cx="400" cy="300" r="56" />
+      <circle class="outline" cx="400" cy="300" r="24" />
+      {[-90, -18, 54, 126, 198].map((deg) => (
+        <g transform={`rotate(${deg} 400 300)`}>
+          <path class="outline thin" d="M382 246 H418 L408 172 H392 Z" />
+        </g>
+      ))}
+      {[-54, 18, 90, 162, 234].map((deg) => (
+        <g transform={`rotate(${deg} 400 300)`}>
+          <circle class="hole" cx="400" cy="262" r="7" />
+        </g>
+      ))}
+      <g class="dim">
+        <line class="dim-line" x1="244" y1="140" x2="556" y2="140" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="244" y1="140" x2="300" y2="214" />
+        <line class="ext" x1="556" y1="140" x2="500" y2="214" />
+        <text x="400" y="126" text-anchor="middle">Ø EXTERIOR</text>
+      </g>
+      <g class="dim">
+        <path class="leader" d="M458 367 L520 430 H610" />
+        <text x="616" y="434">ALOJAMIENTO</text>
+      </g>
+      <text class="tag" x="176" y="518">MM / RUEDA</text>
+      <text class="tag tag--dim" x="624" y="518" text-anchor="end">VISTA FRONTAL</text>
+    </g>
+  )}
+
+  {type === 'roller' && (
+    <g>
+      <line class="axis" x1="110" y1="300" x2="690" y2="300" />
+      <rect class="outline" x="200" y="240" width="400" height="120" />
+      <ellipse class="outline" cx="200" cy="300" rx="20" ry="60" />
+      <ellipse class="outline" cx="600" cy="300" rx="20" ry="60" />
+      <line class="outline" x1="130" y1="288" x2="200" y2="288" />
+      <line class="outline" x1="130" y1="312" x2="200" y2="312" />
+      <line class="outline" x1="600" y1="288" x2="670" y2="288" />
+      <line class="outline" x1="600" y1="312" x2="670" y2="312" />
+      {[280, 360, 440, 520].map((x) => (
+        <g>
+          <line class="thin" x1={x} y1="242" x2={x} y2="358" />
+          <line class="thin" x1={x + 10} y1="242" x2={x + 10} y2="358" />
+        </g>
+      ))}
+      <path class="accent" d="M270 240 H280 V360 H270" />
+      <g class="dim">
+        <line class="dim-line" x1="200" y1="440" x2="600" y2="440" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="200" y1="440" x2="200" y2="372" />
+        <line class="ext" x1="600" y1="440" x2="600" y2="372" />
+        <text x="400" y="426" text-anchor="middle">LONGITUD ÚTIL S/ PLANO</text>
+      </g>
+      <text class="tag" x="130" y="520">MM / RODILLO</text>
+      <text class="tag tag--dim" x="670" y="520" text-anchor="end">VISTA LATERAL</text>
+    </g>
+  )}
+
+  {type === 'spacer' && (
+    <g>
+      <line class="axis" x1="190" y1="300" x2="610" y2="300" />
+      <circle class="outline" cx="300" cy="300" r="112" />
+      <circle class="outline" cx="300" cy="300" r="56" />
+      <path class="accent" d="M300 188 A112 112 0 0 0 300 412 L300 356 A56 56 0 0 1 300 244 Z" fill="none" />
+      <path class="hatch" d="M300 188 A112 112 0 0 0 300 412 L300 356 A56 56 0 0 1 300 244 Z" fill={`url(#${uid}-hatch)`} opacity=".35" />
+      <path class="outline" d="M450 188 H558 V412 H450" />
+      <path class="outline" d="M450 244 H558 M450 356 H558" />
+      <path class="hatch" d="M450 188 H558 V244 H450 Z M450 356 H558 V412 H450 Z" fill={`url(#${uid}-hatch)`} opacity=".35" />
+      <g class="dim">
+        <line class="dim-line" x1="610" y1="188" x2="610" y2="412" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="558" y1="188" x2="610" y2="188" />
+        <line class="ext" x1="558" y1="412" x2="610" y2="412" />
+        <text class="tag" x="630" y="304">L</text>
+      </g>
+      <text class="tag" x="190" y="515">MM / SEPARADOR</text>
+      <text class="tag tag--dim" x="610" y="515" text-anchor="end">VISTA · SECCIÓN</text>
+    </g>
+  )}
+
+  {type === 'bar' && (
+    <g>
+      <line class="axis" x1="100" y1="300" x2="700" y2="300" />
+      <rect class="outline" x="140" y="278" width="520" height="44" />
+      <line class="outline" x1="220" y1="278" x2="220" y2="322" />
+      <line class="outline" x1="256" y1="278" x2="256" y2="322" />
+      <line class="outline" x1="486" y1="278" x2="486" y2="322" />
+      <line class="outline" x1="522" y1="278" x2="522" y2="322" />
+      <rect class="outline" x="256" y="278" width="230" height="44" fill={`url(#${uid}-knurl)`} opacity=".55" />
+      <path class="accent" d="M256 274 H486 V278 H256 Z M256 322 H486 V326 H256 Z" />
+      {[160, 180, 200].map((x) => (
+        <path class="thin" d={`M${x} 322 L${x + 14} 278`} />
+      ))}
+      {[540, 560, 580, 600].map((x) => (
+        <path class="thin" d={`M${x} 322 L${x + 14} 278`} />
+      ))}
+      <path class="outline" d="M610 268 L646 282 L646 318 L610 332 L588 318 V282 Z" />
+      <path class="outline" d="M588 282 L610 268 M588 318 L610 332" />
+      <g class="dim">
+        <line class="dim-line" x1="140" y1="180" x2="660" y2="180" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="140" y1="180" x2="140" y2="270" />
+        <line class="ext" x1="660" y1="180" x2="660" y2="262" />
+        <text x="400" y="166" text-anchor="middle">LONGITUD S/ PLANO</text>
+      </g>
+      <text class="tag" x="270" y="370">ZONA DE AGARRE</text>
+      <text class="tag" x="120" y="520">MM / BARRA CON MANIJAR</text>
+      <text class="tag tag--dim" x="680" y="520" text-anchor="end">VISTA LATERAL</text>
+    </g>
+  )}
+
+  {type === 'gear' && (
+    <g>
+      <line class="axis" x1="200" y1="300" x2="600" y2="300" />
+      <line class="axis" x1="400" y1="100" x2="400" y2="500" />
+      <path class="outline" d={gearPath} />
+      <circle class="thin dashed accent" cx="400" cy="300" r="143" />
+      <circle class="outline" cx="400" cy="300" r="62" />
+      <circle class="outline" cx="400" cy="300" r="30" />
+      <path class="accent" d="M390 300 V272 H410 V300" />
+      {[-90, -18, 54, 126, 198].map((deg) => (
+        <g transform={`rotate(${deg} 400 300)`}>
+          <circle class="hole" cx="400" cy="215" r="17" />
+        </g>
+      ))}
+      <g class="dim">
+        <path class="leader" d="M508 209 L575 155 H665" />
+        <text x="671" y="159">CIRC. PRIMITIVO</text>
+      </g>
+      <text class="tag" x="170" y="515">MM / ENGRANAJE</text>
+      <text class="tag tag--dim" x="630" y="515" text-anchor="end">VISTA FRONTAL</text>
+    </g>
+  )}
+
+  {type === 'flange' && (
+    <g>
+      <line class="axis" x1="200" y1="300" x2="600" y2="300" />
+      <line class="axis" x1="400" y1="110" x2="400" y2="490" />
+      <circle class="outline" cx="400" cy="300" r="150" />
+      <circle class="outline" cx="400" cy="300" r="102" />
+      <circle class="outline" cx="400" cy="300" r="46" />
+      <circle class="thin dashed" cx="400" cy="300" r="120" />
+      {flangeHoles.map((hole) => (
+        <g>
+          <circle class="hole" cx={hole.x} cy={hole.y} r="13" />
+          <circle class="thin" cx={hole.x} cy={hole.y} r="19" opacity=".4" />
+        </g>
+      ))}
+      <path class="accent" d="M400 150 A150 150 0 0 1 550 300" opacity=".9" />
+      <g class="dim">
+        <line class="dim-line" x1="250" y1="140" x2="550" y2="140" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="250" y1="140" x2="290" y2="200" />
+        <line class="ext" x1="550" y1="140" x2="510" y2="200" />
+        <text x="400" y="126" text-anchor="middle">Ø EXTERIOR</text>
+      </g>
+      <g class="dim">
+        <path class="leader" d="M462 347 L530 415 H620" />
+        <text x="626" y="419">PERFORACIONES</text>
+      </g>
+      <text class="tag" x="180" y="515">MM / BRIDA</text>
+      <text class="tag tag--dim" x="620" y="515" text-anchor="end">VISTA FRONTAL</text>
+    </g>
+  )}
+
+  {type === 'plate' && (
+    <g>
+      <path class="outline" d="M242 170 H558 L578 190 V410 L558 430 H242 L222 410 V190 Z" />
+      {[
+        [282, 210],
+        [518, 210],
+        [282, 390],
+        [518, 390],
+      ].map(([x, y]) => (
+        <g>
+          <circle class="hole" cx={x} cy={y} r="15" />
+          <circle class="thin" cx={x} cy={y} r="22" opacity=".35" />
+        </g>
+      ))}
+      <rect class="accent" x="345" y="262" width="110" height="76" rx="26" />
+      <circle class="hole" cx="400" cy="225" r="12" />
+      <g class="dim">
+        <line class="dim-line" x1="222" y1="120" x2="578" y2="120" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="222" y1="120" x2="222" y2="180" />
+        <line class="ext" x1="578" y1="120" x2="578" y2="180" />
+        <text x="400" y="106" text-anchor="middle">ANCHO S/ PLANO</text>
+      </g>
+      <g class="dim">
+        <line class="dim-line" x1="640" y1="170" x2="640" y2="430" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="578" y1="170" x2="640" y2="170" />
+        <line class="ext" x1="558" y1="430" x2="640" y2="430" />
+        <text class="tag" x="656" y="304">ALTO</text>
+      </g>
+      <text class="tag" x="150" y="510">MM / PLACA MECANIZADA</text>
+      <text class="tag tag--dim" x="650" y="510" text-anchor="end">VISTA FRONTAL</text>
+    </g>
+  )}
+
+  {type === 'custom' && (
+    <g>
+      <path class="outline" d="M252 140 H520 V300 H382 V460 H252 Z" />
+      <path class="thin" d="M252 165 H495 M277 140 V435" opacity=".5" />
+      <circle class="hole" cx="315" cy="205" r="17" />
+      <circle class="hole" cx="435" cy="205" r="17" />
+      <circle class="hole" cx="315" cy="300" r="17" />
+      <circle class="hole" cx="315" cy="390" r="17" />
+      <rect class="accent" x="300" y="225" width="150" height="52" rx="8" />
+      <path class="thin" d="M470 300 H520 M382 400 H520" opacity=".6" />
+      <g class="dim">
+        <line class="dim-line" x1="252" y1="105" x2="520" y2="105" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="252" y1="105" x2="252" y2="132" />
+        <line class="ext" x1="520" y1="105" x2="520" y2="140" />
+        <text x="386" y="91" text-anchor="middle">A MEDIDA</text>
+      </g>
+      <g class="dim">
+        <line class="dim-line" x1="600" y1="140" x2="600" y2="460" marker-start={`url(#${uid}-arrow)`} marker-end={`url(#${uid}-arrow)`} />
+        <line class="ext" x1="520" y1="140" x2="600" y2="140" />
+        <line class="ext" x1="382" y1="460" x2="600" y2="460" />
+        <text class="tag" x="616" y="304">S/ MUESTRA</text>
+      </g>
+      <text class="tag" x="160" y="510">MM / PIEZA ESPECIAL</text>
+      <text class="tag tag--dim" x="640" y="510" text-anchor="end">PLANO O MUESTRA</text>
+    </g>
+  )}
+</svg>
+
+<style>
+  .part {
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    overflow: visible;
+  }
+
+  .outline {
+    stroke: currentColor;
+    stroke-width: 1.7;
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .edge {
+    stroke: currentColor;
+    stroke-width: 1;
+    fill: none;
+    opacity: 0.6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .thin {
+    stroke: currentColor;
+    stroke-width: 1;
+    fill: none;
+    opacity: 0.55;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .axis {
+    stroke: currentColor;
+    stroke-width: 1;
+    opacity: 0.45;
+    stroke-dasharray: 14 6 2 6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .dashed {
+    stroke-dasharray: 10 8;
+  }
+
+  .hole {
+    stroke: currentColor;
+    stroke-width: 1.4;
+    fill: var(--ink);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .accent {
+    stroke: var(--part-accent);
+    stroke-width: 1.7;
+    fill: none;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .center {
+    fill: var(--part-accent);
+  }
+
+  .hatch {
+    stroke: currentColor;
+    stroke-width: 1;
+  }
+
+  .dim-line,
+  .ext,
+  .leader {
+    stroke: var(--part-accent);
+    stroke-width: 1;
+    opacity: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .ext {
+    opacity: 0.45;
+  }
+
+  .leader {
+    opacity: 0.55;
+  }
+
+  text {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    fill: currentColor;
+    opacity: 0.8;
+    text-transform: uppercase;
+  }
+
+  .dim text {
+    fill: var(--part-accent);
+    opacity: 0.95;
+  }
+
+  .tag {
+    font-size: 12px;
+    opacity: 0.55;
+  }
+
+  .tag--dim {
+    opacity: 0.35;
+  }
+</style>

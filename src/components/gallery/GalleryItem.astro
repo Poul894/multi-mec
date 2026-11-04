@@ -1,0 +1,52 @@
+---
+import WorkVisual from './WorkVisual.astro';
+import Icon from '../ui/Icon.astro';
+import type { WorkItem } from '../../data/works';
+
+interface Props {
+  work: WorkItem;
+}
+
+const { work } = Astro.props;
+const unitLabel = work.unit === 'fitness' ? 'Fitness' : 'Industrial';
+---
+
+<article class="gallery-item" data-gallery-item data-unit={work.unit}>
+  <div class="gallery-item__media">
+    {
+      work.image ? (
+        <img
+          src={work.image}
+          alt={work.title}
+          loading="lazy"
+          width="1200"
+          height="900"
+          decoding="async"
+        />
+      ) : (
+        <WorkVisual work={work} />
+      )
+    }
+  </div>
+  <span class="gallery-item__zoom" aria-hidden="true">
+    <Icon name="plus" size={14} />
+  </span>
+  <div class="gallery-item__overlay">
+    <span class="gallery-item__meta">
+      <span>{work.kind}</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span>{unitLabel}</span>
+    </span>
+    <span class="gallery-item__title">{work.title}</span>
+  </div>
+  <button
+    type="button"
+    class="gallery-item__trigger"
+    data-gallery-open
+    data-title={work.title}
+    data-description={work.description}
+    data-code={work.id}
+    aria-label={`Ampliar imagen: ${work.title}`}
+  >
+  </button>
+</article>

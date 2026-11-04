@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+import { mailtoLink, site } from '../data/site';
+
+const updated = 'Noviembre de 2026';
+---
+
+<BaseLayout
+  title="Política de privacidad"
+  description="Cómo trata Multi Mec los datos que enviás a través del sitio web: formulario de presupuesto, WhatsApp y email."
+>
+  <div class="legal-head">
+    <div class="container container--narrow">
+      <Breadcrumbs items={[{ label: 'Privacidad' }]} />
+      <p class="eyebrow"><span class="eyebrow__index">08 /</span> Información legal</p>
+      <h1>Política de <span class="accent">privacidad.</span></h1>
+      <p>
+        Esta política describe qué datos recibe Multi Mec a través de este sitio web, para qué
+        se usan y cómo podés ejercer tus derechos.
+      </p>
+      <div class="legal-meta">
+        <span>Última actualización: {updated}</span>
+        <span>Responsable: {site.name}</span>
+        <span>Contacto: {site.contact.email}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="legal-body">
+    <div class="container container--narrow">
+      <div class="prose">
+        <h2>1. Responsable del tratamiento</h2>
+        <p>
+          El responsable de los datos que se reciben a través de este sitio es <strong>{site.name}</strong>,
+          tornería y mecanizado de precisión. Para cualquier consulta relacionada con esta política
+          podés escribir a <a href={mailtoLink('Consulta sobre privacidad')}>{site.contact.email}</a>.
+        </p>
+
+        <h2>2. Qué datos se reciben</h2>
+        <p>
+          El sitio no cuenta con una base de datos propia ni almacena las consultas en un servidor.
+          Los datos que ingresás en el formulario de presupuesto se utilizan para preparar un
+          mensaje y enviarlo a través de WhatsApp o de tu cliente de correo electrónico.
+        </p>
+        <p>Los campos que puede incluir la consulta son:</p>
+        <ul>
+          <li>Nombre y apellido.</li>
+          <li>Empresa (opcional).</li>
+          <li>Email y teléfono de contacto.</li>
+          <li>Unidad de interés, tipo de consulta, pieza, cantidad, material y referencia.</li>
+          <li>Detalle de la consulta y, si los adjuntás, planos, fotos o especificaciones.</li>
+        </ul>
+        <p>
+          También se incluye la página desde la que se originó la consulta, con el único fin de
+          entender el contexto del pedido.
+        </p>
+
+        <h2>3. Para qué se usan</h2>
+        <p>Los datos se usan exclusivamente para:</p>
+        <ul>
+          <li>Responder la consulta y elaborar un presupuesto.</li>
+          <li>Coordinar la fabricación, el retiro o el envío de una pieza.</li>
+          <li>Mantener el contacto comercial relacionado con el trabajo consultado.</li>
+        </ul>
+        <p>
+          No utilizamos los datos para enviar publicidad no solicitada ni los vendemos o cedemos a
+          terceros con fines comerciales.
+        </p>
+
+        <h2>4. Base de la utilización</h2>
+        <p>
+          Al completar el formulario y aceptar la casilla correspondiente, prestás tu consentimiento
+          para que Multi Mec utilice los datos con el fin de responder tu consulta. Podés retirar
+          ese consentimiento en cualquier momento escribiendo al correo indicado.
+        </p>
+
+        <h2>5. Cómo se transmiten los datos</h2>
+        <p>
+          El formulario no envía información a un servidor propio: abre una conversación de
+          WhatsApp o un correo electrónico en tu dispositivo. En ese momento, el contenido pasa a
+          estar sujeto a las políticas de privacidad de WhatsApp (Meta) o de tu proveedor de correo.
+        </p>
+        <p>
+          El sitio se aloja en un proveedor de hosting que puede registrar datos técnicos básicos
+          de acceso, como dirección IP, fecha y hora de la solicitud, con fines de seguridad y
+          funcionamiento del servicio.
+        </p>
+
+        <h2>6. Conservación</h2>
+        <p>
+          Los datos recibidos por WhatsApp o email se conservan durante el tiempo necesario para
+          atender la consulta, elaborar el presupuesto y, si corresponde, mantener la relación
+          comercial. Luego se eliminan o se archivan conforme a las obligaciones legales aplicables.
+        </p>
+
+        <h2>7. Cookies y tecnologías similares</h2>
+        <p>
+          Este sitio no utiliza cookies de publicidad ni herramientas de seguimiento propias. Las
+          tipografías se alojan junto con el sitio, por lo que no se realizan pedidos a servicios
+          externos para mostrarlas.
+        </p>
+        <p>
+          Si en el futuro se incorporan herramientas de medición o servicios de terceros, esta
+          política se actualizará para informarlo.
+        </p>
+
+        <h2>8. Tus derechos</h2>
+        <p>
+          Podés solicitar el acceso, la rectificación, la actualización o la eliminación de tus
+          datos personales escribiendo a <a href={mailtoLink('Derechos sobre mis datos personales')}>{site.contact.email}</a>.
+          También podés oponerte al uso de tus datos para fines específicos.
+        </p>
+        <p>
+          Para proteger tu información, podemos pedirte que acredites tu identidad antes de responder
+          una solicitud.
+        </p>
+
+        <h2>9. Seguridad</h2>
+        <p>
+          Adoptamos medidas razonables para proteger la información que recibimos. Ningún sistema
+          es completamente infalible, por lo que te recomendamos no enviar datos sensibles que no
+          sean necesarios para la consulta.
+        </p>
+
+        <h2>10. Cambios en esta política</h2>
+        <p>
+          Podemos actualizar esta política para reflejar cambios en el sitio o en la normativa
+          aplicable. La versión vigente es la publicada en esta página, con la fecha de última
+          actualización indicada al inicio.
+        </p>
+
+        <h2>11. Contacto</h2>
+        <p>
+          Si tenés preguntas sobre esta política o sobre el tratamiento de tus datos, escribinos a
+          <a href={mailtoLink('Consulta sobre privacidad')}>{site.contact.email}</a> o por WhatsApp al
+          {' '}<a href={`https://wa.me/${site.contact.whatsapp}`} target="_blank" rel="noopener noreferrer">{site.contact.whatsappDisplay}</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

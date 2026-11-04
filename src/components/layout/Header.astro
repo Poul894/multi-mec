@@ -1,0 +1,138 @@
+---
+import Logo from './Logo.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import { navigation, site, whatsappLink } from '../../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
+---
+
+<div class="topbar">
+  <div class="container topbar__inner">
+    <div class="topbar__group">
+      <span class="topbar__item">
+        <Icon name="pin" size={12} />
+        Argentina
+      </span>
+      <span class="topbar__item">
+        <Icon name="truck" size={13} />
+        Envíos a todo el país
+      </span>
+    </div>
+    <div class="topbar__group">
+      <span class="topbar__status">Atención a industrias y fabricantes</span>
+      <a
+        class="topbar__item"
+        href={whatsappLink()}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="whatsapp" size={13} />
+        {site.contact.whatsappDisplay}
+      </a>
+    </div>
+  </div>
+</div>
+
+<header class="site-header" data-header>
+  <div class="container header__inner">
+    <Logo />
+
+    <nav class="nav" aria-label="Navegación principal">
+      {
+        navigation.map((item) => (
+          <a
+            class="nav__link"
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <Button href="/contacto" size="sm" class="header__cta">Solicitar presupuesto</Button>
+
+    <button
+      type="button"
+      class="menu-toggle"
+      data-menu-toggle
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Abrir menú"
+    >
+      <span class="menu-toggle__lines" aria-hidden="true"></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" data-mobile-menu inert>
+  <nav class="mobile-menu__nav" aria-label="Navegación móvil">
+    {
+      navigation.map((item, index) => (
+        <a
+          class="mobile-menu__link"
+          href={item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+          <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="mobile-menu__footer">
+    <Button href="/contacto" icon="arrow-right">Solicitar presupuesto</Button>
+    <div class="mobile-menu__contact">
+      <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
+        WhatsApp · {site.contact.whatsappDisplay}
+      </a>
+      <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+    </div>
+    <p class="mobile-menu__note">Tornería y mecanizado de precisión · Envíos a todo el país.</p>
+  </div>
+</div>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  const siteHeader = document.querySelector<HTMLElement>('[data-header]');
+
+  if (toggle && menu) {
+    const setOpen = (open: boolean, restoreFocus = true) => {
+      menu.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      document.body.classList.toggle('menu-open', open);
+      menu.inert = !open;
+
+      if (open) {
+        menu.querySelector<HTMLAnchorElement>('a')?.focus();
+      } else if (restoreFocus) {
+        toggle.focus();
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    menu.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false, false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.classList.contains('is-open')) setOpen(false);
+    });
+  }
+
+  if (siteHeader) {
+    const update = () => siteHeader.classList.toggle('is-scrolled', window.scrollY > 8);
+    update();
+    document.addEventListener('scroll', update, { passive: true });
+  }
+</script>

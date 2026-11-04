@@ -1,0 +1,15 @@
+---
+import GalleryItem from './GalleryItem.astro';
+import type { WorkItem } from '../../data/works';
+
+interface Props {
+  items: WorkItem[];
+  preview?: boolean;
+}
+
+const { items, preview = false } = Astro.props;
+---
+
+<div class:list={['works-grid', preview && 'works-grid--preview']} data-gallery-grid>
+  {items.map((work) => <GalleryItem work={work} />)}
+</div>

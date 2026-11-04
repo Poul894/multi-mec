@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import QuoteForm from '../components/forms/QuoteForm.astro';
+
+import { contactDetails, mailtoLink, site, whatsappLink } from '../data/site';
+import { faqs } from '../data/content';
+
+const iconFor = (label: string) => {
+  if (label === 'WhatsApp') return 'whatsapp' as const;
+  if (label === 'Email') return 'mail' as const;
+  if (label === 'Horario') return 'clock' as const;
+  return 'truck' as const;
+};
+
+const contactFaqs = [faqs[0], faqs[1], faqs[4], faqs[5]];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contacto · Multi Mec',
+  description:
+    'Solicitá un presupuesto de mecanizado o consultá por piezas industriales y componentes para equipamiento fitness.',
+  about: {
+    '@type': 'Organization',
+    name: site.name,
+    url: site.url,
+  },
+};
+---
+
+<BaseLayout
+  title="Contacto y presupuestos"
+  description="Solicitá un presupuesto de mecanizado. Contanos qué pieza necesitás, la cantidad y si tenés plano o muestra. WhatsApp, email y formulario de consulta."
+  structuredData={schema}
+>
+  <PageHero
+    index="06"
+    eyebrow="Contacto"
+    title="Hablemos de <span class='accent'>tu pieza.</span>"
+    lead="Contanos qué necesitás fabricar o reponer. Si tenés plano, muestra o fotos, adjuntalo en la consulta: nos ayuda a cotizar con precisión."
+    drawing="flange"
+    breadcrumbs={[{ label: 'Contacto' }]}
+    meta={['Respuesta del taller', 'Industrial y fitness', 'Envíos a todo el país']}
+  >
+    <Button href={whatsappLink()} size="lg" external icon="whatsapp">Escribir por WhatsApp</Button>
+    <Button href={mailtoLink()} variant="outline" size="lg" icon="mail">Enviar un email</Button>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">01 /</span> Canales directos</p>
+          <h2>Elegí cómo <span class="accent">consultarnos.</span></h2>
+          <p>
+            Atendemos consultas de fábricas, talleres, industrias y fabricantes de equipamiento
+            fitness. La consulta técnica se responde desde el taller.
+          </p>
+
+          <div class="contact-channels">
+            {
+              contactDetails.map((item) => (
+                <div class="contact-channel">
+                  <span class="contact-channel__icon">
+                    <Icon name={iconFor(item.label)} size={16} />
+                  </span>
+                  <div class="contact-channel__body">
+                    <span class="contact-channel__label">{item.label}</span>
+                    {item.href ? (
+                      <a
+                        class="contact-channel__value"
+                        href={item.href}
+                        target={item.external ? '_blank' : undefined}
+                        rel={item.external ? 'noopener noreferrer' : undefined}
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <span class="contact-channel__value">{item.value}</span>
+                    )}
+                    <span class="contact-channel__note">{item.note}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="contact-visual">
+            <div class="contact-visual__map" aria-hidden="true">
+              <svg viewBox="0 0 600 180" fill="none">
+                <defs>
+                  <pattern id="contact-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                    <path d="M30 0H0V30" stroke="currentColor" stroke-opacity=".12" stroke-width="1" />
+                  </pattern>
+                </defs>
+                <rect width="600" height="180" fill="url(#contact-grid)" />
+                <path
+                  d="M24 132C118 132 148 52 246 52c98 0 116 78 204 78 46 0 76-18 126-42"
+                  stroke="var(--orange)"
+                  stroke-width="1.2"
+                  stroke-dasharray="5 5"
+                />
+                <path
+                  d="M24 150C142 150 174 96 286 96s140 48 290-12"
+                  stroke="currentColor"
+                  stroke-width="1"
+                  stroke-dasharray="2 6"
+                  stroke-opacity=".5"
+                />
+                <g fill="var(--orange)">
+                  <circle cx="24" cy="132" r="3.5" />
+                  <circle cx="246" cy="52" r="3.5" />
+                  <circle cx="450" cy="130" r="3.5" />
+                  <circle cx="576" cy="88" r="3.5" />
+                </g>
+                <g fill="currentColor" font-family="var(--font-mono)" font-size="8" letter-spacing="1.2">
+                  <text x="24" y="120">TALLER</text>
+                  <text x="238" y="42">COORDINACIÓN</text>
+                  <text x="424" y="118">ENVÍO</text>
+                  <text x="540" y="76">DESTINO</text>
+                </g>
+              </svg>
+            </div>
+            <span class="contact-visual__label">Cobertura</span>
+            <strong>Argentina · envíos nacionales</strong>
+            <p>
+              Coordinamos embalaje y logística según destino, volumen y urgencia. También
+              podés retirar en el taller.
+            </p>
+          </div>
+        </div>
+
+        <div class="quote-panel" data-reveal>
+          <div class="quote-panel__head">
+            <h3>Solicitud de presupuesto</h3>
+            <span>Respuesta del taller</span>
+          </div>
+          <QuoteForm source="/contacto" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <div class="faq-layout">
+        <div class="faq-intro">
+          <p class="eyebrow"><span class="eyebrow__index">02 /</span> Antes de escribir</p>
+          <h2>Consultas <span class="accent">frecuentes.</span></h2>
+          <p class="lead">
+            Si tu duda no está acá, escribinos por WhatsApp. Respondemos con información concreta
+            sobre el trabajo que necesitás.
+          </p>
+          <Button href="/envios" variant="outline" class="faq-intro__cta" icon="truck">
+            Ver información de envíos
+          </Button>
+        </div>
+        <FaqList faqs={contactFaqs} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

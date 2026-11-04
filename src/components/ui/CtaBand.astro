@@ -1,0 +1,45 @@
+---
+import Button from './Button.astro';
+import { whatsappLink } from '../../data/site';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  text?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+  accent?: 'orange' | 'blue';
+}
+
+const {
+  eyebrow = 'Presupuestos',
+  title,
+  text = 'Contanos qué pieza necesitás, la cantidad estimada y si tenés plano o muestra. Te respondemos con una propuesta concreta.',
+  primaryHref = '/contacto',
+  primaryLabel = 'Solicitar presupuesto',
+  secondaryHref = whatsappLink(),
+  secondaryLabel = 'Consultar por WhatsApp',
+  accent = 'orange',
+} = Astro.props;
+---
+
+<section class="cta-band" style={`--accent: var(--${accent});`}>
+  <div class="container cta-band__inner">
+    <div>
+      <p class="eyebrow">
+        <span class="eyebrow__index">MM /</span>
+        {eyebrow}
+      </p>
+      <h2 set:html={title} />
+      <p>{text}</p>
+    </div>
+    <div class="cta-band__actions">
+      <Button href={primaryHref} size="lg">{primaryLabel}</Button>
+      <Button href={secondaryHref} variant="outline" size="lg" icon="whatsapp" external>
+        {secondaryLabel}
+      </Button>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,283 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import Icon from '../../components/ui/Icon.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import ProductCard from '../../components/catalog/ProductCard.astro';
+
+import { productCategories, products } from '../../data/products';
+
+const total = products.length;
+
+const searchText = (product: (typeof products)[number]) =>
+  [
+    product.name,
+    product.code,
+    product.category,
+    product.short,
+    product.description,
+    ...product.applications,
+    ...product.specs.map((spec) => `${spec.label} ${spec.value}`),
+  ]
+    .join(' ')
+    .toLowerCase();
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Catálogo de piezas mecanizadas',
+  description:
+    'Catálogo de piezas mecanizadas de Multi Mec: componentes para industria y equipamiento fitness.',
+  hasPart: products.map((product) => ({
+    '@type': 'Product',
+    name: product.name,
+    sku: product.code,
+    category: product.category,
+    description: product.short,
+  })),
+};
+---
+
+<BaseLayout
+  title="Catálogo de productos"
+  description="Catálogo de piezas mecanizadas: ejes, bujes, poleas, engranajes, ruedas, rodillos, separadores y barras para industria y equipamiento fitness."
+  structuredData={schema}
+>
+  <PageHero
+    index="03"
+    eyebrow="Catálogo"
+    title="Piezas mecanizadas <span class='accent'>para cada aplicación.</span>"
+    lead="Explorá las líneas de trabajo de Multi Mec Industrial y Multi Mec Fitness. Cada pieza se fabrica según plano, muestra o especificación, en la cantidad que necesites."
+    drawing="gear"
+    breadcrumbs={[{ label: 'Productos' }]}
+    meta={[`${total} fichas técnicas`, 'Industrial y fitness', 'Fabricación a medida']}
+  >
+    <a class="btn btn--primary btn--lg" href="#catalogo">Explorar catálogo</a>
+    <a class="btn btn--outline btn--lg" href="/contacto">
+      Consultar por una pieza
+      <Icon name="arrow-right" size={15} />
+    </a>
+  </PageHero>
+
+  <section class="section" id="catalogo">
+    <div class="container">
+      <div class="catalog-toolbar">
+        <div class="filter-block">
+          <span class="filter-label" id="filter-unit-label">Unidad</span>
+          <div class="filter-group" role="group" aria-labelledby="filter-unit-label">
+            <button type="button" class="filter-btn is-active" data-filter data-group="unit" data-value="all" aria-pressed="true">
+              Todas
+            </button>
+            <button type="button" class="filter-btn" data-filter data-group="unit" data-value="industrial" aria-pressed="false">
+              Industrial
+            </button>
+            <button type="button" class="filter-btn" data-filter data-group="unit" data-value="fitness" aria-pressed="false">
+              Fitness
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-block">
+          <span class="filter-label" id="filter-category-label">Categoría</span>
+          <div class="filter-group" role="group" aria-labelledby="filter-category-label" data-category-group>
+            <button type="button" class="filter-btn is-active" data-filter data-group="category" data-value="all" aria-pressed="true">
+              Todas
+            </button>
+            {
+              productCategories.map((category) => (
+                <button
+                  type="button"
+                  class="filter-btn"
+                  data-filter
+                  data-group="category"
+                  data-value={category.slug}
+                  data-category-unit={category.unit}
+                  aria-pressed="false"
+                >
+                  {category.name}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="catalog-search">
+          <label class="sr-only" for="catalog-search">Buscar una pieza</label>
+          <Icon name="search" size={15} />
+          <input
+            id="catalog-search"
+            type="search"
+            placeholder="Buscar pieza, código o material…"
+            autocomplete="off"
+            data-catalog-search
+          />
+        </div>
+
+        <p class="catalog-count" aria-live="polite">
+          Mostrando <strong data-catalog-count>{total}</strong> de {total} piezas
+        </p>
+      </div>
+
+      <div class="catalog-grid" data-catalog-grid>
+        {
+          products.map((product) => (
+            <ProductCard
+              product={product}
+              dataUnit={product.unit}
+              dataCategory={product.categorySlug}
+              dataSearch={searchText(product)}
+            />
+          ))
+        }
+
+        <div class="catalog-empty" data-catalog-empty>
+          <h3>No encontramos piezas con esos filtros.</h3>
+          <p>Probá con otra búsqueda o consultanos por una pieza fuera de catálogo.</p>
+          <a class="link-arrow" href="/contacto">
+            Consultar por una pieza especial
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="¿No está en el catálogo?"
+    title="También fabricamos lo que <span class='accent'>no figura acá.</span>"
+    text="El catálogo reúne las líneas más habituales. Si tu pieza es distinta, mandanos el plano, una foto o la muestra y la evaluamos."
+  />
+</BaseLayout>
+
+<script>
+  const grid = document.querySelector<HTMLElement>('[data-catalog-grid]');
+  const searchInput = document.querySelector<HTMLInputElement>('[data-catalog-search]');
+  const countEl = document.querySelector<HTMLElement>('[data-catalog-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-catalog-empty]');
+  const unitButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter][data-group="unit"]'));
+  const categoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter][data-group="category"]'));
+
+  if (grid) {
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.product-card'));
+    const total = cards.length;
+    const state = { unit: 'all', category: 'all', query: '' };
+
+    const categoriesForUnit = (unit: string) =>
+      categoryButtons
+        .filter((button) => {
+          const value = button.dataset.value;
+          return value === 'all' || !unit || unit === 'all' || button.dataset.categoryUnit === unit;
+        })
+        .map((button) => button.dataset.value);
+
+    const setPressed = (buttons: HTMLButtonElement[], activeValue: string) => {
+      buttons.forEach((button) => {
+        const active = button.dataset.value === activeValue;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+    };
+
+    const syncUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const setOrDelete = (key: string, value: string) => {
+        if (value && value !== 'all') params.set(key, value);
+        else params.delete(key);
+      };
+      setOrDelete('unidad', state.unit);
+      setOrDelete('categoria', state.category);
+      setOrDelete('q', state.query);
+      const query = params.toString();
+      history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+    };
+
+    const applyFilters = () => {
+      const query = state.query.trim().toLowerCase();
+      let visible = 0;
+
+      cards.forEach((card) => {
+        const matchesUnit = state.unit === 'all' || card.dataset.unit === state.unit;
+        const matchesCategory = state.category === 'all' || card.dataset.category === state.category;
+        const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
+        const show = matchesUnit && matchesCategory && matchesQuery;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      if (countEl) countEl.textContent = String(visible);
+      if (emptyEl) emptyEl.classList.toggle('is-visible', visible === 0);
+      if (searchInput) {
+        searchInput.setAttribute(
+          'aria-label',
+          visible === 0 ? 'Buscar una pieza. Sin resultados para los filtros actuales.' : 'Buscar una pieza',
+        );
+      }
+    };
+
+    const applyUnitVisibility = () => {
+      const allowed = categoriesForUnit(state.unit);
+      categoryButtons.forEach((button) => {
+        const value = button.dataset.value ?? 'all';
+        button.hidden = value !== 'all' && !allowed.includes(value);
+      });
+    };
+
+    const setUnit = (unit: string) => {
+      state.unit = unit;
+      setPressed(unitButtons, unit);
+      applyUnitVisibility();
+
+      if (state.category !== 'all' && !categoriesForUnit(unit).includes(state.category)) {
+        state.category = 'all';
+        setPressed(categoryButtons, 'all');
+      }
+
+      applyFilters();
+      syncUrl();
+    };
+
+    const setCategory = (category: string) => {
+      state.category = category;
+      setPressed(categoryButtons, category);
+      applyFilters();
+      syncUrl();
+    };
+
+    unitButtons.forEach((button) => {
+      button.addEventListener('click', () => setUnit(button.dataset.value ?? 'all'));
+    });
+
+    categoryButtons.forEach((button) => {
+      button.addEventListener('click', () => setCategory(button.dataset.value ?? 'all'));
+    });
+
+    searchInput?.addEventListener('input', () => {
+      state.query = searchInput.value;
+      applyFilters();
+      syncUrl();
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const initialUnit = params.get('unidad');
+    const initialCategory = params.get('categoria');
+    const initialQuery = params.get('q');
+
+    if (initialUnit === 'industrial' || initialUnit === 'fitness') state.unit = initialUnit;
+    if (initialCategory && categoryButtons.some((button) => button.dataset.value === initialCategory)) {
+      state.category = initialCategory;
+    }
+    if (initialQuery) {
+      state.query = initialQuery;
+      if (searchInput) searchInput.value = initialQuery;
+    }
+
+    setPressed(unitButtons, state.unit);
+    applyUnitVisibility();
+
+    if (state.category !== 'all' && !categoriesForUnit(state.unit).includes(state.category)) {
+      state.category = 'all';
+    }
+    setPressed(categoryButtons, state.category);
+    applyFilters();
+  }
+</script>

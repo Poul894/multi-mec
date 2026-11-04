@@ -1,0 +1,64 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './Icon.astro';
+
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: 'primary' | 'outline' | 'quiet';
+  size?: 'sm' | 'md' | 'lg';
+  icon?: IconName | false;
+  iconPosition?: 'left' | 'right';
+  full?: boolean;
+  external?: boolean;
+  class?: string;
+  ariaLabel?: string;
+  disabled?: boolean;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  icon = 'arrow-right',
+  iconPosition = 'right',
+  full = false,
+  external = false,
+  class: className = '',
+  ariaLabel,
+  disabled = false,
+} = Astro.props;
+
+const classes = [
+  'btn',
+  `btn--${variant}`,
+  size !== 'md' ? `btn--${size}` : '',
+  full ? 'btn--full' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class={classes}
+      aria-label={ariaLabel}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+    >
+      {icon && iconPosition === 'left' && <Icon name={icon} size={15} />}
+      <slot />
+      {icon && iconPosition === 'right' && <Icon name={icon} size={15} />}
+    </a>
+  ) : (
+    <button type={type} class={classes} aria-label={ariaLabel} disabled={disabled}>
+      {icon && iconPosition === 'left' && <Icon name={icon} size={15} />}
+      <slot />
+      {icon && iconPosition === 'right' && <Icon name={icon} size={15} />}
+    </button>
+  )
+}

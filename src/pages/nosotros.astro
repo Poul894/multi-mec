@@ -1,0 +1,270 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import Icon from '../components/ui/Icon.astro';
+import PartDrawing from '../components/ui/PartDrawing.astro';
+import CtaBand from '../components/ui/CtaBand.astro';
+
+import { capabilities, materials, processSteps, sectors, values } from '../data/content';
+import { units } from '../data/units';
+import { site } from '../data/site';
+
+const base = Astro.site ?? new URL(Astro.url.origin);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'Nosotros · Multi Mec',
+  description:
+    'Multi Mec es una tornería y empresa de mecanizado de precisión de Argentina con dos unidades: Industrial y Fitness.',
+  mainEntity: {
+    '@type': 'Organization',
+    '@id': `${base.origin}/#organization`,
+    name: site.name,
+    url: base.origin,
+  },
+};
+
+const facts = [
+  { label: 'Especialidad', value: 'Tornería y mecanizado de precisión' },
+  { label: 'Modalidad', value: 'Según plano · muestra · serie' },
+  { label: 'Cobertura', value: 'Argentina · envíos nacionales' },
+];
+---
+
+<BaseLayout
+  title="Nosotros"
+  description="Multi Mec es una tornería y empresa de mecanizado de precisión de Argentina. Conocé cómo trabajamos y las dos unidades: Industrial y Fitness."
+  structuredData={schema}
+>
+  <PageHero
+    index="05"
+    eyebrow="Nosotros"
+    title="Un taller que responde <span class='accent'>con precisión.</span>"
+    lead="Trabajamos con fábricas, talleres y fabricantes de equipamiento, resolviendo piezas y repuestos con atención directa."
+    drawing="bushing"
+    breadcrumbs={[{ label: 'Nosotros' }]}
+    meta={['Atención directa', 'Dos unidades', 'Envíos a todo el país']}
+    photo="/images/industrial-roscado.jpg"
+    photoAlt="Roscado de precisión en torno"
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="story-grid">
+        <div class="story-copy" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">01 /</span> Quiénes somos</p>
+          <h2>La misma precisión para la industria y el <span class="accent">equipamiento.</span></h2>
+          <p>
+            Multi Mec nace como un taller de tornería y mecanizado. Con el tiempo, la misma
+            capacidad técnica que se aplica a una pieza industrial empezó a sostener también la
+            producción y reparación de equipamiento fitness.
+          </p>
+          <p>
+            Hoy trabajamos con dos unidades complementarias: <strong>Multi Mec Industrial</strong>,
+            enfocada en piezas a medida y repuestos para fábricas y talleres; y
+            <strong>Multi Mec Fitness</strong>, dedicada a componentes para máquinas de gimnasio
+            y abastecimiento a fabricantes.
+          </p>
+          <p>
+            No publicamos números que no podamos sostener. Preferimos que nos conozcas por cómo
+            trabajamos: consultas claras, piezas que funcionan y respuesta directa del taller.
+          </p>
+          <div class="story-points">
+            <span>Atención directa</span>
+            <span>Criterio técnico</span>
+            <span>Pieza o serie</span>
+            <span>Envíos nacionales</span>
+          </div>
+        </div>
+
+        <div class="story-visual corner-frame" data-reveal>
+          <PartDrawing type="bushing" accent="orange" />
+        </div>
+      </div>
+
+      <div class="mini-stats">
+        {
+          facts.map((fact) => (
+            <div class="mini-stat">
+              <span class="mini-stat__label">{fact.label}</span>
+              <span class="mini-stat__value">{fact.value}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="02"
+        eyebrow="Cómo pensamos el trabajo"
+        title="Cuatro cosas que <span class='accent'>no negociamos.</span>"
+        lead="Son criterios simples, pero ordenan cada trabajo: desde una pieza única hasta un lote de producción."
+      />
+
+      <div class="values-grid">
+        {
+          values.map((value) => (
+            <article class="value-card" data-reveal>
+              <span class="value-card__index">{value.index}</span>
+              <h3>{value.title}</h3>
+              <p>{value.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="03"
+        eyebrow="Capacidades"
+        title="Lo que podemos <span class='accent'>resolver.</span>"
+        lead="Torneado, fresado, fabricación a medida y control dimensional. El alcance de cada trabajo se define según la pieza, el material y la cantidad."
+      />
+
+      <div class="cap-grid">
+        {
+          capabilities.map((capability, index) => (
+            <article class="cap-card" data-reveal style={`--reveal-delay: ${index * 60}ms;`}>
+              <div class="cap-card__top">
+                <Icon name={capability.icon} size={38} class="cap-card__icon" />
+                <span class="cap-card__code">{capability.code}</span>
+              </div>
+              <h3>{capability.title}</h3>
+              <p>{capability.description}</p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="materials-row">
+        <span class="materials-row__label">Materiales habituales</span>
+        <ul class="materials-row__list">
+          {materials.map((material) => <li>{material}</li>)}
+        </ul>
+        <span class="materials-row__note">Consultá por otros materiales</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <div class="process-grid">
+        <div class="process-intro">
+          <p class="eyebrow"><span class="eyebrow__index">04 /</span> Cómo trabajamos</p>
+          <h2>Un proceso claro, <span class="accent">de punta a punta.</span></h2>
+          <p class="lead">
+            Sabés qué se va a fabricar, con qué material y en qué condiciones antes de que la
+            pieza entre a la máquina.
+          </p>
+          <a class="link-arrow" href="/contacto">
+            Empezar una consulta
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+
+        <div class="process-steps">
+          {
+            processSteps.map((step) => (
+              <article class="process-step" data-reveal>
+                <span class="process-step__index">{step.index}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="05"
+        eyebrow="Dos unidades"
+        title="Un taller, <span class='accent'>dos especialidades.</span>"
+        lead="Las dos unidades comparten el taller, el estándar de mecanizado y la atención. Cambia el tipo de pieza y el mercado al que se orienta cada línea."
+      />
+
+      <div class="units-grid">
+        {
+          units.map((unit) => (
+            <a
+              class:list={['unit-card', unit.id === 'fitness' && 'unit-card--fitness']}
+              href={unit.href}
+              data-reveal
+            >
+              <span class="unit-card__top">
+                <span class="unit-card__index">MM / {unit.index}</span>
+                <span class="unit-card__label">{unit.eyebrow}</span>
+              </span>
+
+              <span class="unit-card__visual" aria-hidden="true">
+                <PartDrawing
+                  type={unit.drawing}
+                  accent={unit.id === 'fitness' ? 'blue' : 'orange'}
+                />
+              </span>
+
+              <div class="unit-card__content">
+                <div class="unit-card__title">
+                  <span class="eyebrow eyebrow--plain">Multi Mec</span>
+                  <h3>{unit.shortName}</h3>
+                </div>
+                <span class="unit-card__headline">{unit.description}</span>
+                <ul class="unit-card__list">
+                  {unit.services.map((service) => (
+                    <li>{service}</li>
+                  ))}
+                </ul>
+                <span class="unit-card__link">
+                  Explorar {unit.shortName}
+                  <span>
+                    <Icon name="arrow-right" size={15} />
+                  </span>
+                </span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <SectionHead
+        index="06"
+        eyebrow="Sectores"
+        title="Con quién <span class='accent'>trabajamos.</span>"
+        lead="Fábricas, talleres de mantenimiento, fabricantes de equipamiento y desarrollos que necesitan una pieza mecanizada específica."
+      />
+
+      <div class="values-grid">
+        {
+          sectors.map((sector) => (
+            <article class="value-card" data-reveal>
+              <span class="value-card__index">{sector.code}</span>
+              <h3>{sector.title}</h3>
+              <p>{sector.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Hablemos"
+    title="Contanos qué necesitás <span class='accent'>fabricar.</span>"
+    text="Sea una pieza única o una serie, la consulta empieza igual: nos contás qué necesitás y evaluamos cómo resolverlo."
+  />
+</BaseLayout>

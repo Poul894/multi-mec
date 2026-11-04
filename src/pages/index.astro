@@ -1,0 +1,488 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import ProductCard from '../components/catalog/ProductCard.astro';
+import GalleryGrid from '../components/gallery/GalleryGrid.astro';
+import QuoteForm from '../components/forms/QuoteForm.astro';
+
+import { units } from '../data/units';
+import { capabilities, faqs, materials, processSteps } from '../data/content';
+import { getProduct, type Product } from '../data/products';
+import { works } from '../data/works';
+import { contactDetails, site } from '../data/site';
+
+const featured = ['eje-escalonado', 'repuesto-a-muestra', 'buje-fitness', 'polea-fitness']
+  .map((slug) => getProduct(slug))
+  .filter((product): product is Product => Boolean(product));
+
+const homeWorks = works.slice(0, 4);
+const homeFaqs = faqs.slice(0, 4);
+
+const unitPhotos: Record<string, { src: string; alt: string }> = {
+  industrial: { src: '/images/industrial-mordaza.jpg', alt: 'Fresado de precisión en el taller' },
+  fitness: { src: '/images/fitness-sala.jpg', alt: 'Sala de equipamiento de gimnasio' },
+};
+
+const heroViews = [
+  { label: 'Ver Industrial', href: '/industrial' },
+  { label: 'Ver Fitness', href: '/fitness' },
+  { label: 'Ver catálogo', href: '/productos' },
+  { label: 'Ver galería', href: '/galeria' },
+];
+
+const tickerItems = [
+  'Acero al carbono',
+  'Acero inoxidable',
+  'Aluminio',
+  'Bronce',
+  'Nylon',
+  'POM',
+  'Según plano',
+  'Según muestra',
+  'Series cortas',
+];
+---
+
+<BaseLayout
+  title="Tornería y mecanizado de precisión"
+  description="Tornería y mecanizado de precisión en Argentina. Fabricación de piezas a medida, repuestos industriales y componentes para equipamiento fitness. Solicitá tu presupuesto."
+>
+  <section class="hero">
+    <div class="hero__media" aria-hidden="true">
+      <video
+        class="hero__video"
+        id="hero-video"
+        muted
+        loop
+        playsinline
+        preload="none"
+        poster="/images/industrial-chispas.jpg"
+      >
+        <source src="/video/portada.mp4" type="video/mp4" />
+      </video>
+      <div class="hero__media-grid"></div>
+      <div class="hero__media-overlay"></div>
+    </div>
+
+    <div class="container">
+      <div class="hero__inner">
+        <p class="eyebrow hero__eyebrow">
+          <span class="eyebrow__index">MM /</span>
+          Tornería · Mecanizado de precisión · Argentina
+        </p>
+
+        <h1>Mecanizado de precisión<span class="accent">.</span></h1>
+
+        <p class="hero__lead">
+          Piezas a medida y repuestos para industria y equipamiento fitness, según plano o
+          muestra.
+        </p>
+
+        <div class="hero__actions">
+          <Button href="/contacto" size="lg">Solicitar presupuesto</Button>
+          <Button href="#unidades" variant="outline" size="lg" icon="chevron-down" iconPosition="right">
+            Ver unidades
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    <nav class="hero__views" aria-label="Accesos rápidos">
+      <div class="container">
+        <div class="hero__views-inner">
+          {
+            heroViews.map((item) => (
+              <a class="hero__view-link" href={item.href}>
+                {item.label}
+                <Icon name="arrow-up-right" size={13} />
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </nav>
+  </section>
+
+  <script>
+    const video = document.getElementById('hero-video') as HTMLVideoElement | null;
+    const canPlay = window.matchMedia('(min-width: 760px)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (video && canPlay && !reduceMotion) {
+      video.preload = 'auto';
+      video.autoplay = true;
+      video.play().catch(() => {});
+    }
+  </script>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      {
+        [0, 1].map((group) => (
+          <div class="ticker__group">
+            {tickerItems.map((item) => (
+              <span class:list={['ticker__item', item === 'Según plano' && 'ticker__item--accent']}>
+                {item}
+              </span>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <section class="section" id="unidades">
+    <div class="container">
+      <SectionHead
+        index="01"
+        eyebrow="Dos unidades"
+        title="Una misma precisión.<br /><span class='accent'>Dos especialidades.</span>"
+        lead="Elegí la unidad que se ajusta a tu necesidad."
+      />
+
+      <div class="units-grid">
+        {
+          units.map((unit) => (
+            <a
+              class:list={['unit-card', unit.id === 'fitness' && 'unit-card--fitness']}
+              href={unit.href}
+              data-reveal
+            >
+              <span class="unit-card__top">
+                <span class="unit-card__index">MM / {unit.index}</span>
+                <span class="unit-card__label">{unit.eyebrow}</span>
+              </span>
+
+              <span class="unit-card__visual" aria-hidden="true">
+                <img
+                  class="unit-card__photo"
+                  src={unitPhotos[unit.id].src}
+                  alt=""
+                  loading="lazy"
+                  width="960"
+                  height="640"
+                />
+              </span>
+
+              <div class="unit-card__content">
+                <div class="unit-card__title">
+                  <span class="eyebrow eyebrow--plain">Multi Mec</span>
+                  <h3>{unit.shortName}</h3>
+                </div>
+                <span class="unit-card__headline">{unit.description}</span>
+                <ul class="unit-card__list">
+                  {unit.services.map((service) => (
+                    <li>{service}</li>
+                  ))}
+                </ul>
+                <span class="unit-card__link">
+                  Ver {unit.shortName}
+                  <span>
+                    <Icon name="arrow-right" size={15} />
+                  </span>
+                </span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="02"
+        eyebrow="Capacidades"
+        title="Mecanizado para piezas que <span class='accent'>no pueden fallar.</span>"
+        lead="Torneado, fresado y fabricación a medida con atención directa del taller. Cada trabajo se analiza según su función, material y cantidad."
+      />
+
+      <div class="cap-grid">
+        {
+          capabilities.map((capability, index) => (
+            <article
+              class="cap-card"
+              data-reveal
+              style={`--reveal-delay: ${index * 60}ms;`}
+            >
+              <div class="cap-card__top">
+                <Icon name={capability.icon} size={38} class="cap-card__icon" />
+                <span class="cap-card__code">{capability.code}</span>
+              </div>
+              <h3>{capability.title}</h3>
+              <p>{capability.description}</p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="materials-row">
+        <span class="materials-row__label">Materiales habituales</span>
+        <ul class="materials-row__list">
+          {materials.map((material) => <li>{material}</li>)}
+        </ul>
+        <span class="materials-row__note">Consultá por otros materiales</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="process-grid">
+        <div class="process-intro">
+          <p class="eyebrow"><span class="eyebrow__index">03 /</span> Cómo trabajamos</p>
+          <h2>Del plano a la pieza, <span class="accent">sin vueltas.</span></h2>
+          <p class="lead">
+            Un proceso directo, con criterio técnico en cada etapa. Desde la primera consulta
+            hasta la entrega, sabés qué se va a fabricar y en qué condiciones.
+          </p>
+          <a class="link-arrow" href="/contacto">
+            Empezar una consulta
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+
+        <div class="process-steps">
+          {
+            processSteps.map((step) => (
+              <article class="process-step" data-reveal>
+                <span class="process-step__index">{step.index}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="04"
+        eyebrow="Catálogo"
+        title="Piezas que fabricamos <span class='accent'>todos los días.</span>"
+        lead="Una selección de las líneas de trabajo más consultadas. Cada pieza se fabrica según medida, material y cantidad."
+      />
+
+      <div class="product-grid">
+        {featured.map((product) => <ProductCard product={product} />)}
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/productos">
+          Ver catálogo completo
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="05"
+        eyebrow="Trabajos"
+        title="Registro de taller."
+        lead="Una muestra representativa de piezas mecanizadas para industria y fitness. Cada trabajo empieza con una necesidad concreta."
+      />
+
+      <div data-reveal>
+        <GalleryGrid items={homeWorks} preview />
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/galeria">
+          Ver galería completa
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-visual corner-frame" data-reveal>
+          <img
+            class="about-visual__photo"
+            src="/images/industrial-fresadora-cnc.jpg"
+            alt="Fresadora CNC trabajando en el taller Multi Mec"
+            loading="lazy"
+            width="1200"
+            height="1500"
+          />
+          <span class="about-visual__word" aria-hidden="true">MM</span>
+          <div class="about-visual__data">
+            <span><strong>Especialidad</strong> · Mecanizado de precisión</span>
+            <span><strong>Modalidad</strong> · Plano · muestra · serie</span>
+            <span><strong>Cobertura</strong> · Argentina</span>
+          </div>
+        </div>
+
+        <div class="about-copy" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">06 /</span> Nosotros</p>
+          <h2>Un taller, dos especialidades, <span class="accent">un mismo estándar.</span></h2>
+          <p>
+            Tornería y mecanizado de precisión de Argentina. Trabajamos con fábricas, talleres
+            y fabricantes de equipamiento fitness, con respuesta directa y criterio técnico.
+          </p>
+
+          <div class="about-points">
+            <div class="about-point">
+              <span class="about-point__index">01</span>
+              <strong>Atención directa</strong>
+              <span>La consulta técnica se resuelve con el taller.</span>
+            </div>
+            <div class="about-point">
+              <span class="about-point__index">02</span>
+              <strong>Según plano o muestra</strong>
+              <span>Nos adaptamos a la información disponible.</span>
+            </div>
+            <div class="about-point">
+              <span class="about-point__index">03</span>
+              <strong>Una pieza o una serie</strong>
+              <span>Prototipos, reposición y producción.</span>
+            </div>
+            <div class="about-point">
+              <span class="about-point__index">04</span>
+              <strong>Envíos a todo el país</strong>
+              <span>Coordinamos embalaje y logística.</span>
+            </div>
+          </div>
+
+          <a class="link-arrow" href="/nosotros">
+            Conocer Multi Mec
+            <Icon name="arrow-right" size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <div class="faq-layout">
+        <div class="faq-intro">
+          <p class="eyebrow"><span class="eyebrow__index">07 /</span> Preguntas frecuentes</p>
+          <h2>Lo que suelen <span class="accent">preguntarnos.</span></h2>
+          <p class="lead">
+            Si tu consulta no está acá, escribinos por WhatsApp. Respondemos con información
+            concreta sobre el trabajo que necesitás.
+          </p>
+          <Button href="/contacto" variant="outline" class="faq-intro__cta">
+            Hacer una consulta
+          </Button>
+        </div>
+        <FaqList faqs={homeFaqs} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section quote-section" id="presupuesto">
+    <div class="container">
+      <div class="quote-grid">
+        <div class="quote-copy">
+          <p class="eyebrow"><span class="eyebrow__index">08 /</span> Presupuestos</p>
+          <h2>Contanos qué pieza <span class="accent">necesitás.</span></h2>
+          <p>
+            Completá el formulario y recibí una respuesta técnica y comercial. Si tenés plano,
+            muestra o fotos, mejor: podemos cotizar con mayor precisión.
+          </p>
+
+          <div class="quote-channels">
+            {
+              contactDetails.map((item) => (
+                <div class="quote-channel">
+                  <span class="quote-channel__icon">
+                    <Icon
+                      name={
+                        item.label === 'WhatsApp'
+                          ? 'whatsapp'
+                          : item.label === 'Email'
+                            ? 'mail'
+                            : item.label === 'Horario'
+                              ? 'clock'
+                              : 'truck'
+                      }
+                      size={15}
+                    />
+                  </span>
+                  <div class="quote-channel__body">
+                    <span class="quote-channel__label">{item.label}</span>
+                    {item.href ? (
+                      <a
+                        class="quote-channel__value"
+                        href={item.href}
+                        target={item.external ? '_blank' : undefined}
+                        rel={item.external ? 'noopener noreferrer' : undefined}
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <span class="quote-channel__value">{item.value}</span>
+                    )}
+                    <span class="quote-channel__note">{item.note}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <p class="quote-copy__note">
+            <Icon name="package" size={15} />
+            <span>
+              Atendemos consultas de fabricantes y equipamiento fitness para producción
+              mayorista. Contanos tu volumen estimado.
+            </span>
+          </p>
+        </div>
+
+        <div class="quote-panel" data-reveal>
+          <div class="quote-panel__head">
+            <h3>Solicitud de presupuesto</h3>
+            <span>Respuesta del taller</span>
+          </div>
+          <QuoteForm source="/" />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .faq-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(32px, 6vw, 88px);
+    align-items: start;
+  }
+
+  .faq-intro h2 {
+    max-width: 13ch;
+    margin-top: 18px;
+  }
+
+  .faq-intro .lead {
+    margin-top: 20px;
+  }
+
+  .faq-intro__cta {
+    margin-top: 26px;
+  }
+
+  @media (max-width: 900px) {
+    .faq-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .faq-intro h2 {
+      max-width: 20ch;
+    }
+  }
+</style>

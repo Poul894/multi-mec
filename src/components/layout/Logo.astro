@@ -1,0 +1,19 @@
+---
+interface Props {
+  class?: string;
+  compact?: boolean;
+}
+
+const { class: className = '', compact = false } = Astro.props;
+const label = compact
+  ? 'Multi Mec — Inicio'
+  : 'Multi Mec — Tornería · Mecanizado — Inicio';
+---
+
+<a href="/" class:list={['logo', className]} aria-label={label}>
+  <img class="logo__mark" src="/images/logo-gear.jpg" width="44" height="44" alt="" aria-hidden="true" />
+  <span class="logo__type">
+    MULTI MEC
+    {!compact && <span class="logo__sub">Tornería · Mecanizado</span>}
+  </span>
+</a>

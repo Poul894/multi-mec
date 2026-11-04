@@ -1,0 +1,15 @@
+---
+import Icon from '../ui/Icon.astro';
+import { whatsappLink } from '../../data/site';
+---
+
+<a
+  class="wa-fab"
+  href={whatsappLink()}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Consultar por WhatsApp"
+>
+  <Icon name="whatsapp" size={27} />
+  <span class="wa-fab__label" aria-hidden="true">Consultar por WhatsApp</span>
+</a>

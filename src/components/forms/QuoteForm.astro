@@ -1,0 +1,417 @@
+---
+import Icon from '../ui/Icon.astro';
+import { mailtoLink, site, whatsappLink } from '../../data/site';
+
+interface Props {
+  source?: string;
+  compact?: boolean;
+}
+
+const { source = Astro.url.pathname, compact = false } = Astro.props;
+---
+
+<form
+  class="form"
+  data-quote-form
+  data-source={source}
+  data-email={site.contact.email}
+  action={whatsappLink()}
+  method="get"
+  target="_blank"
+  novalidate
+>
+  <div class="form-grid">
+    <div class="field">
+      <label for="q-name">Nombre y apellido <span class="req" aria-hidden="true">*</span></label>
+      <input
+        id="q-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        placeholder="Tu nombre"
+        required
+        aria-describedby="q-name-error"
+      />
+      <span class="field__error" id="q-name-error" data-error>Ingresá tu nombre.</span>
+    </div>
+
+    <div class="field">
+      <label for="q-company">Empresa</label>
+      <input
+        id="q-company"
+        name="company"
+        type="text"
+        autocomplete="organization"
+        placeholder="Nombre de la empresa"
+      />
+    </div>
+
+    <div class="field">
+      <label for="q-email">Email <span class="req" aria-hidden="true">*</span></label>
+      <input
+        id="q-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        placeholder="nombre@empresa.com"
+        required
+        aria-describedby="q-email-error"
+      />
+      <span class="field__error" id="q-email-error" data-error>Ingresá un email válido.</span>
+    </div>
+
+    <div class="field">
+      <label for="q-phone">WhatsApp / Teléfono <span class="req" aria-hidden="true">*</span></label>
+      <input
+        id="q-phone"
+        name="phone"
+        type="tel"
+        autocomplete="tel"
+        placeholder="Código de área + número"
+        required
+        aria-describedby="q-phone-error"
+      />
+      <span class="field__error" id="q-phone-error" data-error>Ingresá un teléfono de contacto.</span>
+    </div>
+
+    <div class="field">
+      <label for="q-unit">Unidad <span class="req" aria-hidden="true">*</span></label>
+      <select id="q-unit" name="unit" required aria-describedby="q-unit-error">
+        <option value="" selected disabled>Seleccioná una opción</option>
+        <option value="Multi Mec Industrial">Industrial</option>
+        <option value="Multi Mec Fitness">Fitness</option>
+        <option value="No estoy seguro">No estoy seguro</option>
+      </select>
+      <span class="field__error" id="q-unit-error" data-error>Seleccioná una unidad.</span>
+    </div>
+
+    <div class="field">
+      <label for="q-type">Tipo de consulta</label>
+      <select id="q-type" name="type">
+        <option value="Presupuesto de fabricación" selected>Presupuesto de fabricación</option>
+        <option value="Repuesto / reposición">Repuesto / reposición</option>
+        <option value="Producción / mayorista">Producción / mayorista</option>
+        <option value="Consulta técnica">Consulta técnica</option>
+        <option value="Otra consulta">Otra consulta</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="q-piece">Pieza o producto <span class="req" aria-hidden="true">*</span></label>
+      <input
+        id="q-piece"
+        name="piece"
+        type="text"
+        placeholder="Ej.: buje, polea, eje escalonado"
+        required
+        aria-describedby="q-piece-error"
+      />
+      <span class="field__error" id="q-piece-error" data-error>Contanos qué pieza necesitás.</span>
+    </div>
+
+    <div class="field">
+      <label for="q-quantity">Cantidad estimada</label>
+      <input
+        id="q-quantity"
+        name="quantity"
+        type="text"
+        inputmode="numeric"
+        placeholder="Ej.: 1, 10, 100 unidades"
+      />
+    </div>
+
+    <div class="field">
+      <label for="q-material">Material</label>
+      <select id="q-material" name="material">
+        <option value="A definir" selected>A definir</option>
+        <option value="Acero">Acero</option>
+        <option value="Acero inoxidable">Acero inoxidable</option>
+        <option value="Aluminio">Aluminio</option>
+        <option value="Bronce">Bronce</option>
+        <option value="Plástico técnico (nylon / POM)">Plástico técnico (nylon / POM)</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="q-reference">Referencia</label>
+      <select id="q-reference" name="reference">
+        <option value="Solo consulta" selected>Solo consulta</option>
+        <option value="Tengo plano">Tengo plano</option>
+        <option value="Tengo muestra física">Tengo muestra física</option>
+        <option value="Tengo fotos y medidas">Tengo fotos y medidas</option>
+      </select>
+    </div>
+
+    <div class="field field--full">
+      <label for="q-message">Detalle de la consulta <span class="req" aria-hidden="true">*</span></label>
+      <textarea
+        id="q-message"
+        name="message"
+        rows="4"
+        placeholder="Contanos para qué equipo es, qué necesita la pieza y cualquier dato que ayude a cotizar."
+        required
+        aria-describedby="q-message-error"
+      ></textarea>
+      <span class="field__error" id="q-message-error" data-error>Agregá un detalle de al menos 15 caracteres.</span>
+    </div>
+
+    <div class="field field--full">
+      <label class="checkbox">
+        <input type="checkbox" name="privacy" required aria-describedby="q-privacy-error" />
+        <span>
+          Acepto que Multi Mec utilice estos datos para responder mi consulta. Ver
+          <a href="/privacidad">política de privacidad</a>.
+        </span>
+      </label>
+      <span class="field__error" id="q-privacy-error" data-error>Necesitamos tu aceptación para responderte.</span>
+    </div>
+  </div>
+
+  <div class="hp" aria-hidden="true">
+    <label for="q-website">No completar</label>
+    <input id="q-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="form__status" data-form-status role="status" aria-live="polite"></div>
+
+  <div class="form__actions">
+    <button type="submit" class="btn btn--primary btn--lg">
+      <Icon name="whatsapp" size={16} />
+      Enviar por WhatsApp
+    </button>
+    <button type="button" class="btn btn--outline btn--lg" data-email-action>
+      <Icon name="mail" size={16} />
+      Enviar por email
+    </button>
+  </div>
+
+  <p class="form__note">
+    <Icon name="package" size={14} />
+    <span>
+      Se abrirá WhatsApp con tu consulta preparada. Si tenés plano, podés adjuntarlo en el chat.
+      {!compact && ' También podés escribirnos por email o enviarnos la muestra por correo postal.'}
+    </span>
+  </p>
+
+  <noscript>
+    <p class="form__note">
+      <Icon name="mail" size={14} />
+      <span>El formulario necesita JavaScript. También podés escribirnos a <a href={mailtoLink()}>{mailtoLink()}</a>.</span>
+    </p>
+  </noscript>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-quote-form]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const emailButton = form.querySelector<HTMLButtonElement>('[data-email-action]');
+    const contactEmail = form.dataset.email ?? 'contacto@multimec.com.ar';
+
+    const getField = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
+
+    // Precarga de datos desde enlaces del catálogo: /contacto?pieza=...&unidad=...&tipo=...
+    const params = new URLSearchParams(window.location.search);
+    const prefillPiece = getField('piece');
+    const prefillUnit = form.elements.namedItem('unit') as HTMLSelectElement | null;
+    const prefillType = form.elements.namedItem('type') as HTMLSelectElement | null;
+    const pieceParam = params.get('pieza');
+    const unitParam = params.get('unidad');
+    const typeParam = params.get('tipo');
+
+    if (prefillPiece && pieceParam && !prefillPiece.value) prefillPiece.value = pieceParam;
+
+    if (prefillUnit && unitParam && !prefillUnit.value) {
+      const unitValue =
+        unitParam === 'industrial'
+          ? 'Multi Mec Industrial'
+          : unitParam === 'fitness'
+            ? 'Multi Mec Fitness'
+            : 'No estoy seguro';
+      prefillUnit.value = unitValue;
+    }
+
+    if (prefillType && typeParam) {
+      const hasOption = Array.from(prefillType.options).some((option) => option.value === typeParam);
+      if (hasOption) prefillType.value = typeParam;
+    }
+
+    const setError = (name: string, message?: string) => {
+      const field = getField(name);
+      if (!field) return;
+      const wrapper = field.closest('.field');
+      const error = wrapper?.querySelector<HTMLElement>('[data-error]');
+      if (!wrapper) return;
+
+      if (message) {
+        wrapper.classList.add('has-error');
+        field.setAttribute('aria-invalid', 'true');
+        if (error) error.textContent = message;
+      } else {
+        wrapper.classList.remove('has-error');
+        field.removeAttribute('aria-invalid');
+      }
+    };
+
+    const validate = (): boolean => {
+      let valid = true;
+      let firstInvalid: HTMLElement | null = null;
+
+      const name = getField('name');
+      const email = getField('email');
+      const phone = getField('phone');
+      const unit = getField('unit');
+      const piece = getField('piece');
+      const message = getField('message');
+      const privacy = getField('privacy');
+
+      if (!name?.value.trim() || name.value.trim().length < 2) {
+        setError('name', 'Ingresá tu nombre y apellido.');
+        valid = false;
+        firstInvalid = firstInvalid ?? name;
+      } else setError('name');
+
+      if (!email?.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
+        setError('email', 'Ingresá un email válido (ej.: nombre@empresa.com).');
+        valid = false;
+        firstInvalid = firstInvalid ?? email;
+      } else setError('email');
+
+      if (!phone?.value.trim() || phone.value.replace(/\D/g, '').length < 6) {
+        setError('phone', 'Ingresá un teléfono con código de área.');
+        valid = false;
+        firstInvalid = firstInvalid ?? phone;
+      } else setError('phone');
+
+      if (!unit?.value) {
+        setError('unit', 'Seleccioná Industrial, Fitness o “No estoy seguro”.');
+        valid = false;
+        firstInvalid = firstInvalid ?? unit;
+      } else setError('unit');
+
+      if (!piece?.value.trim()) {
+        setError('piece', 'Contanos qué pieza o producto necesitás.');
+        valid = false;
+        firstInvalid = firstInvalid ?? piece;
+      } else setError('piece');
+
+      if (!message?.value.trim() || message.value.trim().length < 15) {
+        setError('message', 'Agregá un detalle de al menos 15 caracteres.');
+        valid = false;
+        firstInvalid = firstInvalid ?? message;
+      } else setError('message');
+
+      if (!privacy?.checked) {
+        setError('privacy', 'Necesitamos tu aceptación para responderte.');
+        valid = false;
+        firstInvalid = firstInvalid ?? privacy;
+      } else setError('privacy');
+
+      if (!valid) {
+        firstInvalid?.focus();
+        if (status) {
+          status.className = 'form__status form__status--error is-visible';
+          status.textContent = 'Revisá los campos marcados para poder enviar la consulta.';
+        }
+      }
+
+      return valid;
+    };
+
+    const getData = () => {
+      const data = new FormData(form);
+      const values: Record<string, string> = {};
+      data.forEach((value, key) => {
+        values[key] = String(value).trim();
+      });
+      return values;
+    };
+
+    const buildMessage = (values: Record<string, string>) => {
+      return [
+        '*Nueva consulta desde la web*',
+        '',
+        `*Nombre:* ${values.name}`,
+        values.company ? `*Empresa:* ${values.company}` : '',
+        `*Email:* ${values.email}`,
+        `*Teléfono:* ${values.phone}`,
+        `*Unidad:* ${values.unit}`,
+        `*Tipo de consulta:* ${values.type}`,
+        `*Pieza / producto:* ${values.piece}`,
+        values.quantity ? `*Cantidad:* ${values.quantity}` : '',
+        `*Material:* ${values.material}`,
+        `*Referencia:* ${values.reference}`,
+        '',
+        '*Detalle:*',
+        values.message,
+        '',
+        `_Origen: ${values.source}_`,
+      ]
+        .filter((line) => line !== '')
+        .join('\n');
+    };
+
+    const showStatus = (message: string, href?: string, label?: string) => {
+      if (!status) return;
+      status.className = 'form__status is-visible';
+      status.textContent = message;
+
+      if (href && label) {
+        const link = document.createElement('a');
+        link.href = href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = label;
+        status.append(' ', link);
+      }
+
+      status.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, select, textarea').forEach((input) => {
+      input.addEventListener('input', () => {
+        if (['name', 'email', 'phone', 'unit', 'piece', 'message', 'privacy'].includes(input.name)) {
+          setError(input.name);
+        }
+      });
+      input.addEventListener('change', () => {
+        if (['name', 'email', 'phone', 'unit', 'piece', 'message', 'privacy'].includes(input.name)) {
+          setError(input.name);
+        }
+      });
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!validate()) return;
+
+      const values = getData();
+
+      if (values.website) {
+        showStatus('Consulta recibida. Te vamos a contactar a la brevedad.');
+        return;
+      }
+
+      values.source = form.dataset.source ?? window.location.pathname;
+      const message = buildMessage(values);
+      const baseAction = form.getAttribute('action')?.split('?')[0] ?? '';
+      const finalUrl = `${baseAction}?text=${encodeURIComponent(message)}`;
+
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+      showStatus('Tu consulta está lista. Se abrió WhatsApp para enviarla.', finalUrl, 'Abrir WhatsApp');
+    });
+
+    emailButton?.addEventListener('click', () => {
+      if (!validate()) return;
+      const values = getData();
+      values.source = form.dataset.source ?? window.location.pathname;
+      const subject = `Consulta web — ${values.piece}`;
+      const body = buildMessage(values).replace(/\*/g, '');
+      const emailUrl = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = emailUrl;
+      showStatus('Se abrió tu cliente de correo con la consulta preparada.', emailUrl, 'Abrir email');
+    });
+  }
+</script>

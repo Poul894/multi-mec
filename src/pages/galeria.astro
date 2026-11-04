@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import Icon from '../components/ui/Icon.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import GalleryGrid from '../components/gallery/GalleryGrid.astro';
+import CtaBand from '../components/ui/CtaBand.astro';
+import { works } from '../data/works';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Galería de trabajos',
+  description:
+    'Registro de piezas mecanizadas por Multi Mec para industria y equipamiento fitness.',
+};
+---
+
+<BaseLayout
+  title="Galería de trabajos"
+  description="Registro de taller: piezas mecanizadas a medida, repuestos industriales y componentes para equipamiento fitness fabricados por Multi Mec."
+  structuredData={schema}
+>
+  <PageHero
+    index="04"
+    eyebrow="Trabajos"
+    title="Registro de <span class='accent'>taller.</span>"
+    lead="Una muestra de piezas que pasaron por el taller: ejes, bujes, poleas, ruedas, separadores y desarrollos especiales para industria y fitness."
+    drawing="plate"
+    breadcrumbs={[{ label: 'Galería' }]}
+    meta={[`${works.length} registros`, 'Industrial y fitness', 'Trabajos reales del taller']}
+  >
+    <a class="btn btn--primary btn--lg" href="/contacto">Consultar por una pieza similar</a>
+    <a class="btn btn--outline btn--lg" href="/productos">
+      Ver catálogo
+      <Icon name="arrow-right" size={15} />
+    </a>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="01"
+        eyebrow="Archivo de trabajos"
+        title="Piezas que resolvieron <span class='accent'>una necesidad.</span>"
+        lead="Cada registro corresponde a un trabajo concreto. Filtrá por unidad para ver los componentes de industria o de equipamiento fitness."
+      />
+
+      <div class="catalog-toolbar">
+        <div class="filter-block">
+          <span class="filter-label" id="gallery-filter-label">Unidad</span>
+          <div class="filter-group gallery-filters" role="group" aria-labelledby="gallery-filter-label">
+            <button type="button" class="filter-btn is-active" data-gallery-filter data-value="all" aria-pressed="true">
+              Todas
+            </button>
+            <button type="button" class="filter-btn" data-gallery-filter data-value="industrial" aria-pressed="false">
+              Industrial
+            </button>
+            <button type="button" class="filter-btn" data-gallery-filter data-value="fitness" aria-pressed="false">
+              Fitness
+            </button>
+          </div>
+        </div>
+
+        <p class="catalog-count" aria-live="polite">
+          Mostrando <strong data-gallery-count>{works.length}</strong> de {works.length} trabajos
+        </p>
+      </div>
+
+      <div data-reveal>
+        <GalleryGrid items={works} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="¿Tenés una pieza parecida?"
+    title="Mandanos la muestra y <span class='accent'>la fabricamos.</span>"
+    text="Podés enviarnos fotos, medidas o la pieza original. Evaluamos material, ajustes y cantidad para pasarte un presupuesto."
+  />
+</BaseLayout>
+
+<script>
+  const filterButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-gallery-filter]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-gallery-item]'));
+  const count = document.querySelector<HTMLElement>('[data-gallery-count]');
+
+  if (filterButtons.length && items.length) {
+    const total = items.length;
+
+    const apply = (unit: string, syncUrl = true) => {
+      let visible = 0;
+
+      items.forEach((item) => {
+        const show = unit === 'all' || item.dataset.unit === unit;
+        item.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      filterButtons.forEach((button) => {
+        const active = button.dataset.value === unit;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+
+      if (count) {
+        count.textContent = String(visible);
+        count.parentElement?.setAttribute(
+          'aria-label',
+          `Mostrando ${visible} de ${total} trabajos`,
+        );
+      }
+
+      if (syncUrl) {
+        const params = new URLSearchParams(window.location.search);
+        if (unit === 'all') params.delete('unidad');
+        else params.set('unidad', unit);
+        const query = params.toString();
+        history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+      }
+    };
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => apply(button.dataset.value ?? 'all'));
+    });
+
+    const initial = new URLSearchParams(window.location.search).get('unidad');
+    apply(initial === 'industrial' || initial === 'fitness' ? initial : 'all', false);
+  }
+</script>

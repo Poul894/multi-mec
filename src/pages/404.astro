@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import PartDrawing from '../components/ui/PartDrawing.astro';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que buscás no existe o cambió de dirección. Volvé al inicio o consultá el catálogo de piezas."
+  noindex
+>
+  <section class="error-page">
+    <div class="container">
+      <div class="error-page__grid">
+        <div class="error-code" aria-hidden="true">404</div>
+
+        <div>
+          <p class="eyebrow"><span class="eyebrow__index">MM /</span> Error de recorrido</p>
+          <h1>Esta pieza no está <span class="accent">en el plano.</span></h1>
+          <p>
+            La página que buscás no existe, cambió de dirección o el enlace está incompleto.
+            Podés volver al inicio, recorrer el catálogo o escribirnos y te orientamos.
+          </p>
+          <div class="error-page__actions">
+            <Button href="/" size="lg">Volver al inicio</Button>
+            <Button href="/productos" variant="outline" size="lg" icon="arrow-right">
+              Ver catálogo
+            </Button>
+            <Button href="/contacto" variant="quiet" size="lg">Contacto</Button>
+          </div>
+
+          <div class="note-panel">
+            <strong>Atajos útiles:</strong> <a class="link-arrow" href="/industrial">Industrial</a>{' · '}
+            <a class="link-arrow" href="/fitness">Fitness</a>{' · '}
+            <a class="link-arrow" href="/galeria">Galería</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-page__visual" aria-hidden="true">
+        <PartDrawing type="custom" accent="orange" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .error-page__visual {
+    position: relative;
+    width: min(100%, 420px);
+    margin: 48px auto 0;
+    aspect-ratio: 16 / 9;
+    color: var(--steel);
+    opacity: 0.5;
+  }
+
+  .note-panel :global(.link-arrow) {
+    margin: 0;
+    font-size: inherit;
+  }
+</style>

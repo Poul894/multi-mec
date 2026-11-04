@@ -1,0 +1,117 @@
+---
+import PartDrawing from './PartDrawing.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { whatsappLink } from '../../data/site';
+import type { DrawingType } from '../../data/products';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  index: string;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  drawing: DrawingType;
+  accent?: 'orange' | 'blue';
+  breadcrumbs: Crumb[];
+  meta?: string[];
+  photo?: string;
+  photoAlt?: string;
+}
+
+const {
+  index,
+  eyebrow,
+  title,
+  lead,
+  drawing,
+  accent = 'orange',
+  breadcrumbs,
+  meta = [],
+  photo,
+  photoAlt = '',
+} = Astro.props;
+---
+
+<section class="page-hero" style={`--accent: var(--${accent});`}>
+  <div class="container">
+    <Breadcrumbs items={breadcrumbs} />
+    <div class="page-hero__grid">
+      <div class="page-hero__content">
+        <p class="eyebrow">
+          <span class="eyebrow__index">{index} /</span>
+          {eyebrow}
+        </p>
+        <h1 set:html={title} />
+        <p class="page-hero__lead">{lead}</p>
+        <div class="page-hero__actions">
+          <slot>
+            <Button href="/contacto" size="lg">Solicitar presupuesto</Button>
+            <Button href={whatsappLink()} variant="outline" size="lg" external icon="whatsapp">
+              Consultar por WhatsApp
+            </Button>
+          </slot>
+        </div>
+        {
+          meta.length > 0 && (
+            <div class="page-hero__meta">
+              {meta.map((item) => (
+                <span>{item}</span>
+              ))}
+            </div>
+          )
+        }
+      </div>
+      <div class="page-hero__visual corner-frame">
+        {
+          photo ? (
+            <img
+              class="page-hero__visual-photo"
+              src={photo}
+              alt={photoAlt}
+              loading="eager"
+              width="900"
+              height="720"
+            />
+          ) : (
+            <PartDrawing type={drawing} accent={accent} />
+          )
+        }
+        <span class="page-hero__visual-tag">
+          <Icon name="package" size={12} />
+          MM / {index}
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .page-hero .eyebrow {
+    margin-bottom: 20px;
+  }
+
+  .page-hero__visual-tag {
+    position: absolute;
+    right: 20px;
+    bottom: 18px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+
+  .page-hero__visual-tag :global(svg) {
+    color: var(--accent, var(--orange));
+  }
+</style>

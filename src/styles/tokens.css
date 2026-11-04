@@ -1,0 +1,65 @@
+/* ============================================================
+   MULTI MEC — DESIGN TOKENS
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* Base */
+  --ink: #07080a;
+  --ink-2: #0a0c0e;
+  --graphite: #111417;
+  --graphite-2: #171b1f;
+  --graphite-3: #1f2429;
+  --paper: #f2f0ea;
+  --paper-2: #e7e4db;
+  --white: #faf9f5;
+
+  /* Text */
+  --text: #d9dee1;
+  --muted: #98a2a9;
+  --muted-2: #7b848b;
+  --steel: #8d99a1;
+  --steel-light: #b7c0c6;
+
+  /* Accents */
+  --orange: #ff5a1f;
+  --orange-2: #ff7c4a;
+  --orange-deep: #b8420f;
+  --blue: #6f9cb7;
+  --blue-2: #93b9cd;
+  --blue-deep: #3a6f8d;
+  --green: #25d366;
+
+  /* Lines */
+  --line: rgba(235, 239, 241, 0.12);
+  --line-strong: rgba(235, 239, 241, 0.24);
+  --line-dark: rgba(7, 8, 10, 0.14);
+
+  /* Type */
+  --font-sans: 'Archivo Variable', 'Archivo', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+
+  --fs-h1: clamp(2.6rem, 6.4vw, 6.2rem);
+  --fs-h2: clamp(1.95rem, 3.9vw, 3.75rem);
+  --fs-h3: clamp(1.25rem, 1.9vw, 1.65rem);
+  --fs-lead: clamp(1rem, 1.25vw, 1.17rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-label: 0.68rem;
+
+  /* Layout */
+  --container: 1360px;
+  --gutter: clamp(20px, 4.6vw, 72px);
+  --section-y: clamp(72px, 8.5vw, 128px);
+  --header-h: 82px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Misc */
+  --shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 18px 44px rgba(0, 0, 0, 0.28);
+  --radius: 2px;
+}

@@ -1,0 +1,226 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import CtaBand from '../components/ui/CtaBand.astro';
+import PartDrawing from '../components/ui/PartDrawing.astro';
+
+import { faqs } from '../data/content';
+import { whatsappLink } from '../data/site';
+
+const steps = [
+  {
+    index: '01',
+    title: 'Embalaje',
+    description:
+      'Protegemos cada pieza según su forma, peso y terminación. Las piezas mecanizadas se acondicionan para que lleguen sin golpes ni oxidación.',
+  },
+  {
+    index: '02',
+    title: 'Coordinación',
+    description:
+      'Definimos el medio y el destino junto al cliente. Trabajamos con despachos y transportes según la localidad, el volumen y la urgencia.',
+  },
+  {
+    index: '03',
+    title: 'Seguimiento',
+    description:
+      'Compartimos los datos del envío para que puedas seguir el recorrido. Si la pieza se retira en el taller, coordinamos día y horario.',
+  },
+];
+
+const shippingFaqs = [faqs[4], faqs[0], faqs[3]];
+---
+
+<BaseLayout
+  title="Envíos a todo el país"
+  description="Coordinamos el embalaje y la logística de piezas mecanizadas a todo el territorio argentino. Envíos según destino, volumen y urgencia."
+>
+  <PageHero
+    index="07"
+    eyebrow="Envíos"
+    title="De la pieza <span class='accent'>al destino.</span>"
+    lead="Despachamos a todo el territorio argentino. Coordinamos el embalaje y el transporte según el destino, el volumen y la urgencia de cada trabajo."
+    drawing="roller"
+    breadcrumbs={[{ label: 'Envíos' }]}
+    meta={['Todo el país', 'Embalaje coordinado', 'Retiro en taller']}
+  >
+    <Button href="/contacto" size="lg">Consultar por un envío</Button>
+    <Button href={whatsappLink('Hola Multi Mec, quisiera consultar por el envío de una pieza.')} variant="outline" size="lg" external icon="whatsapp">
+      Consultar por WhatsApp
+    </Button>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="coverage-panel" data-reveal>
+        <div class="coverage-panel__copy">
+          <p class="eyebrow"><span class="eyebrow__index">01 /</span> Cobertura</p>
+          <h2>Todo el país, <span class="accent">coordinado.</span></h2>
+          <p>
+            No usamos un esquema único para todos los envíos. Una pieza pequeña y urgente no se
+            despacha igual que un lote de componentes. Por eso definimos el embalaje y el medio
+            de transporte con cada cliente.
+          </p>
+          <ul class="check-list">
+            <li>
+              <Icon name="check" size={14} />
+              <span>Envíos a cualquier provincia de Argentina.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span>Embalaje adaptado al tipo de pieza y terminación.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span>Retiro en taller si te resulta más conveniente.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="coverage-panel__routes" aria-hidden="true">
+          <svg viewBox="0 0 560 340" fill="none">
+            <defs>
+              <pattern id="routes-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M40 0H0V40" stroke="currentColor" stroke-opacity=".12" />
+              </pattern>
+            </defs>
+            <rect width="560" height="340" fill="url(#routes-grid)" />
+            <path
+              d="M280 168 154 84M280 168 402 76M280 168 82 206M280 168 468 196M280 168 210 274M280 168 386 286"
+              stroke="var(--orange)"
+              stroke-dasharray="4 6"
+              stroke-opacity=".7"
+            />
+            <g stroke="currentColor" stroke-opacity=".28">
+              <circle cx="280" cy="168" r="96" />
+              <circle cx="280" cy="168" r="150" />
+            </g>
+            <circle cx="280" cy="168" r="7" fill="var(--orange)" />
+            <circle cx="280" cy="168" r="14" stroke="var(--orange)" stroke-opacity=".5" />
+            <g fill="currentColor">
+              <circle cx="154" cy="84" r="3.5" />
+              <circle cx="402" cy="76" r="3.5" />
+              <circle cx="82" cy="206" r="3.5" />
+              <circle cx="468" cy="196" r="3.5" />
+              <circle cx="210" cy="274" r="3.5" />
+              <circle cx="386" cy="286" r="3.5" />
+            </g>
+            <g
+              fill="currentColor"
+              font-family="var(--font-mono)"
+              font-size="9"
+              letter-spacing="1.4"
+              opacity=".7"
+            >
+              <text x="132" y="72">NOA</text>
+              <text x="410" y="64">NEA</text>
+              <text x="48" y="220">CUYO</text>
+              <text x="472" y="214">CENTRO</text>
+              <text x="180" y="296">PATAGONIA</text>
+              <text x="392" y="306">BUENOS AIRES</text>
+              <text x="252" y="162" fill="var(--orange)">TALLER</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="02"
+        eyebrow="Cómo coordinamos"
+        title="Tres pasos, <span class='accent'>sin sorpresas.</span>"
+        lead="El envío se define junto con el presupuesto. Sabés cómo se despacha la pieza y qué datos necesitamos para coordinarlo."
+      />
+
+      <div class="shipping-steps">
+        {
+          steps.map((step) => (
+            <article class="shipping-step" data-reveal>
+              <span class="shipping-step__index">{step.index}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="story-grid">
+        <div class="story-copy" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">03 /</span> Embalaje</p>
+          <h2>La pieza también se cuida <span class="accent">en el camino.</span></h2>
+          <p>
+            Una pieza mecanizada puede perder el ajuste si se golpea durante el traslado. Por eso
+            el embalaje se piensa según la geometría, el peso y la terminación de cada componente.
+          </p>
+          <ul class="check-list">
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Protección:</strong> separadores y materiales de amortiguación según la pieza.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Identificación:</strong> cada bulto se marca con los datos del pedido.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Consolidación:</strong> agrupamos piezas de un mismo pedido para optimizar el envío.</span>
+            </li>
+          </ul>
+          <div class="story-points">
+            <span>Piezas únicas</span>
+            <span>Series</span>
+            <span>Embalaje propio</span>
+            <span>Despacho coordinado</span>
+          </div>
+        </div>
+
+        <div class="story-visual corner-frame" data-reveal>
+          <PartDrawing type="spacer" accent="orange" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <div class="faq-layout">
+        <div class="faq-intro">
+          <p class="eyebrow"><span class="eyebrow__index">04 /</span> Preguntas frecuentes</p>
+          <h2>Dudas sobre <span class="accent">envíos.</span></h2>
+          <p class="lead">
+            Si necesitás coordinar una entrega urgente o consultar por un destino puntual,
+            escribinos antes de cerrar el pedido.
+          </p>
+          <Button
+            href={whatsappLink('Hola Multi Mec, quisiera coordinar el envío de una pieza.')}
+            variant="outline"
+            class="faq-intro__cta"
+            external
+            icon="whatsapp"
+          >
+            Coordinar un envío
+          </Button>
+        </div>
+        <FaqList faqs={shippingFaqs} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Envíos"
+    title="¿Necesitás coordinar una <span class='accent'>entrega?</span>"
+    text="Contanos el destino, el volumen y la urgencia. Lo evaluamos junto con el presupuesto de fabricación."
+    primaryLabel="Consultar por un envío"
+  />
+</BaseLayout>

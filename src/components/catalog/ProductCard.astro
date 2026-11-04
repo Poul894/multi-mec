@@ -1,0 +1,55 @@
+---
+import PartDrawing from '../ui/PartDrawing.astro';
+import Icon from '../ui/Icon.astro';
+import type { Product } from '../../data/products';
+
+interface Props {
+  product: Product;
+  dataUnit?: string;
+  dataCategory?: string;
+  dataSearch?: string;
+}
+
+const { product, dataUnit, dataCategory, dataSearch } = Astro.props;
+const accent = product.unit === 'fitness' ? 'blue' : 'orange';
+const unitLabel = product.unit === 'fitness' ? 'Multi Mec Fitness' : 'Multi Mec Industrial';
+---
+
+<article
+  class="product-card"
+  data-reveal
+  data-unit={dataUnit}
+  data-category={dataCategory}
+  data-search={dataSearch}
+>
+  <div class="product-card__media">
+    <span class="product-card__code">{product.code}</span>
+    {
+      product.image ? (
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          width="800"
+          height="600"
+          decoding="async"
+        />
+      ) : (
+        <PartDrawing type={product.drawing} accent={accent} />
+      )
+    }
+    {!product.image && <span class="product-card__kind">Esquema técnico</span>}
+  </div>
+  <div class="product-card__body">
+    <span class:list={['product-card__unit', product.unit === 'fitness' && 'product-card__unit--fitness']}>
+      {unitLabel}
+    </span>
+    <h3>{product.name}</h3>
+    <p class="product-card__desc">{product.short}</p>
+    <div class="product-card__foot">
+      <span>{product.category}</span>
+      <Icon name="arrow-up-right" size={15} />
+    </div>
+  </div>
+  <a class="product-card__link" href={`/productos/${product.slug}`} aria-label={`Ver ficha de ${product.name}`}></a>
+</article>

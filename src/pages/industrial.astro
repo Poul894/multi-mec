@@ -1,0 +1,269 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import Button from '../components/ui/Button.astro';
+import Icon from '../components/ui/Icon.astro';
+import PartDrawing from '../components/ui/PartDrawing.astro';
+import FaqList from '../components/ui/FaqList.astro';
+import CtaBand from '../components/ui/CtaBand.astro';
+import ProductCard from '../components/catalog/ProductCard.astro';
+import GalleryGrid from '../components/gallery/GalleryGrid.astro';
+
+import { getUnit } from '../data/units';
+import { productsByUnit } from '../data/products';
+import { worksByUnit } from '../data/works';
+import { faqs, materials, sectors } from '../data/content';
+import { site, whatsappLink } from '../data/site';
+
+const unit = getUnit('industrial');
+const products = productsByUnit('industrial');
+const works = worksByUnit('industrial');
+const industrialFaqs = [faqs[0], faqs[1], faqs[2], faqs[3]];
+
+const solutions = [
+  {
+    icon: 'custom',
+    code: 'I-01',
+    title: 'Piezas a medida',
+    description:
+      'Fabricación de una pieza desde cero según plano, croquis o necesidad funcional. Definimos material, ajustes y terminación con vos.',
+  },
+  {
+    icon: 'parts',
+    code: 'I-02',
+    title: 'Repuestos críticos',
+    description:
+      'Reposición de componentes para máquinas y equipos, incluso piezas discontinuadas o sin documentación técnica.',
+  },
+  {
+    icon: 'series',
+    code: 'I-03',
+    title: 'Series cortas',
+    description:
+      'Lotes pequeños, prototipos y abastecimiento periódico. La misma pieza repetida con criterio y control dimensional.',
+  },
+  {
+    icon: 'quality',
+    code: 'I-04',
+    title: 'Trabajo según muestra',
+    description:
+      'Tomamos la pieza original como referencia, relevamos medidas y evaluamos qué ajustes deben recuperarse.',
+  },
+];
+
+const base = Astro.site ?? new URL(Astro.url.origin);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Multi Mec Industrial — Tornería y mecanizado',
+  serviceType: [
+    'Fabricación de piezas a medida',
+    'Repuestos industriales',
+    'Mecanizado según plano o muestra',
+    'Series cortas',
+  ],
+  description:
+    'Fabricación de piezas a medida, repuestos industriales y componentes mecanizados para fábricas, talleres e industrias de Argentina.',
+  provider: {
+    '@type': 'Organization',
+    name: site.name,
+    url: base.origin,
+  },
+  areaServed: {
+    '@type': 'Country',
+    name: 'Argentina',
+  },
+};
+---
+
+<BaseLayout
+  title="Multi Mec Industrial"
+  description="Fabricación de piezas a medida, repuestos industriales y mecanizado según plano o muestra para fábricas, talleres e industrias. Envíos a todo el país."
+  structuredData={schema}
+>
+  <PageHero
+    index="01"
+    eyebrow="Multi Mec Industrial"
+    title="Piezas y repuestos para <span class='accent'>la industria.</span>"
+    lead="Fabricamos componentes mecanizados para fábricas, talleres e industrias. Trabajamos según plano, muestra o necesidad funcional, desde una pieza única hasta una serie corta."
+    drawing="shaft"
+    accent="orange"
+    breadcrumbs={[{ label: 'Industrial' }]}
+    meta={['Según plano o muestra', 'Piezas únicas y series', 'Envíos a todo el país']}
+    photo="/images/industrial-chispas.jpg"
+    photoAlt="Torneado de precisión con viruta en caliente"
+  >
+    <Button href="/contacto" size="lg">Solicitar presupuesto</Button>
+    <Button href="/productos?unidad=industrial" variant="outline" size="lg" icon="arrow-right">
+      Ver catálogo industrial
+    </Button>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="01"
+        eyebrow="Qué resolvemos"
+        title="Una respuesta técnica para <span class='accent'>cada pieza.</span>"
+        lead="No hay dos trabajos iguales. Por eso analizamos cada consulta según la función de la pieza, el material y la cantidad: la solución se define con el taller, no con una lista cerrada."
+      />
+
+      <div class="cap-grid">
+        {
+          solutions.map((item, index) => (
+            <article class="cap-card" data-reveal style={`--reveal-delay: ${index * 60}ms;`}>
+              <div class="cap-card__top">
+                <Icon name={item.icon} size={38} class="cap-card__icon" />
+                <span class="cap-card__code">{item.code}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="materials-row">
+        <span class="materials-row__label">Materiales habituales</span>
+        <ul class="materials-row__list">
+          {materials.map((material) => <li>{material}</li>)}
+        </ul>
+        <span class="materials-row__note">Consultá por otros materiales</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="02"
+        eyebrow="Líneas de trabajo"
+        title="Del eje al soporte, <span class='accent'>la pieza completa.</span>"
+        lead="Estas son las líneas que más consultan las industrias. Si tu pieza no aparece en la lista, también podemos fabricarla: el catálogo es una referencia, no un límite."
+      />
+
+      <div class="product-grid">
+        {products.map((product) => <ProductCard product={product} />)}
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/productos?unidad=industrial">
+          Ver fichas técnicas
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="story-grid">
+        <div class="story-copy" data-reveal>
+          <p class="eyebrow"><span class="eyebrow__index">03 /</span> Cómo encaramos el trabajo</p>
+          <h2>Plano, muestra o <span class="accent">una necesidad.</span></h2>
+          <p>
+            La información disponible no siempre es la misma. Podés acercarte con un plano
+            completo, con la pieza rota para copiar o con la descripción del problema. En todos
+            los casos revisamos qué tiene que hacer la pieza y qué medidas son críticas.
+          </p>
+          <ul class="check-list">
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Con plano:</strong> fabricación según cotas, tolerancias y terminaciones indicadas.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Con muestra:</strong> relevamiento de la pieza original y definición de ajustes a recuperar.</span>
+            </li>
+            <li>
+              <Icon name="check" size={14} />
+              <span><strong>Sin referencia:</strong> analizamos la función del componente y proponemos una solución.</span>
+            </li>
+          </ul>
+          <div class="story-points">
+            <span>Piezas únicas</span>
+            <span>Series cortas</span>
+            <span>Reposición</span>
+            <span>Control dimensional</span>
+          </div>
+        </div>
+
+        <div class="story-visual corner-frame" data-reveal>
+          <PartDrawing type="custom" accent="orange" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--graphite section--bordered">
+    <div class="container">
+      <SectionHead
+        index="04"
+        eyebrow="Sectores"
+        title="Con quién <span class='accent'>trabajamos.</span>"
+        lead="Abastecemos a quienes necesitan que la producción no se detenga: desde el mantenimiento de una máquina puntual hasta el desarrollo de un componente nuevo."
+      />
+
+      <div class="values-grid">
+        {
+          sectors.map((sector) => (
+            <article class="value-card" data-reveal>
+              <span class="value-card__index">{sector.code}</span>
+              <h3>{sector.title}</h3>
+              <p>{sector.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead
+        index="05"
+        eyebrow="Trabajos"
+        title="Piezas que salieron <span class='accent'>del taller.</span>"
+        lead="Una muestra del tipo de trabajo que resolvemos para la industria. Cada registro corresponde a una necesidad concreta de un cliente."
+      />
+
+      <div data-reveal>
+        <GalleryGrid items={works.slice(0, 4)} />
+      </div>
+
+      <div class="section-foot">
+        <a class="link-arrow" href="/galeria?unidad=industrial">
+          Ver galería industrial
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="container">
+      <div class="faq-layout">
+        <div class="faq-intro">
+          <p class="eyebrow"><span class="eyebrow__index">06 /</span> Preguntas frecuentes</p>
+          <h2>Antes de <span class="accent">consultar.</span></h2>
+          <p class="lead">
+            Las dudas más habituales de fábricas y talleres. Si la tuya no está acá, escribinos
+            y la resolvemos con el taller.
+          </p>
+          <Button href={whatsappLink('Hola Multi Mec, tengo una consulta industrial.')} variant="outline" class="faq-intro__cta" external icon="whatsapp">
+            Consultar por WhatsApp
+          </Button>
+        </div>
+        <FaqList faqs={industrialFaqs} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Industrial"
+    title="Contanos qué tiene que hacer <span class='accent'>tu pieza.</span>"
+    text="Si tenés plano, muestra o fotos, mejor. Podemos cotizar con mayor precisión y proponerte el material y el proceso adecuado."
+  />
+</BaseLayout>
