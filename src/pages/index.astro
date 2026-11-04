@@ -20,6 +20,7 @@ const featured = ['eje-escalonado', 'repuesto-a-muestra', 'buje-fitness', 'polea
 
 const homeWorks = works.slice(0, 4);
 const homeFaqs = faqs.slice(0, 4);
+const homeCapabilities = capabilities.filter((c) => c.code !== 'C-01' && c.code !== 'C-02');
 
 const unitPhotos: Record<string, { src: string; alt: string }> = {
   industrial: { src: '/images/industrial-mordaza.jpg', alt: 'Fresado de precisión en el taller' },
@@ -28,7 +29,7 @@ const unitPhotos: Record<string, { src: string; alt: string }> = {
 
 const heroSplit = [
   {
-    label: 'Repuestos Industriales',
+    label: 'Repuestos y reparaciones',
     href: '/industrial',
     photo: '/images/industrial-mordaza.jpg',
   },
@@ -118,10 +119,9 @@ const tickerItems = [
 
   <script>
     const video = document.getElementById('hero-video') as HTMLVideoElement | null;
-    const canPlay = window.matchMedia('(min-width: 760px)').matches;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (video && canPlay && !reduceMotion) {
+    if (video && !reduceMotion) {
       video.preload = 'auto';
       video.autoplay = true;
       video.play().catch(() => {});
@@ -207,13 +207,12 @@ const tickerItems = [
       <SectionHead
         index="02"
         eyebrow="Capacidades"
-        title="Mecanizado para piezas que <span class='accent'>no pueden fallar.</span>"
-        lead="Torneado, fresado y fabricación a medida con atención directa del taller. Cada trabajo se analiza según su función, material y cantidad."
+        lead="Fabricación a medida con atención directa del taller. Cada trabajo se analiza según su función, material y cantidad."
       />
 
       <div class="cap-grid">
         {
-          capabilities.map((capability, index) => (
+          homeCapabilities.map((capability, index) => (
             <article
               class="cap-card"
               data-reveal

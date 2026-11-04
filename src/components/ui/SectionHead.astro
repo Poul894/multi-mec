@@ -4,7 +4,7 @@ import Icon from './Icon.astro';
 interface Props {
   index?: string;
   eyebrow: string;
-  title: string;
+  title?: string;
   lead?: string;
   accent?: 'orange' | 'blue';
   center?: boolean;
@@ -23,7 +23,7 @@ const { index, eyebrow, title, lead, accent = 'orange', center = false } = Astro
       {index && <span class="eyebrow__index">{index} /</span>}
       {eyebrow}
     </p>
-    <h2 set:html={title} />
+    {title && <h2 set:html={title} />}
   </div>
   {lead && <p class="section-head__lead" set:html={lead} />}
 </div>

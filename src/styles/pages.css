@@ -78,8 +78,20 @@
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin-top: clamp(18px, 2.4vw, 26px);
+}
+
+.hero__actions .btn {
+  min-height: 32px;
+  padding: 0 12px;
+  gap: 7px;
+  font-size: 0.56rem;
+}
+
+.hero__actions .btn svg {
+  width: 11px;
+  height: 11px;
 }
 
 .hero__split {

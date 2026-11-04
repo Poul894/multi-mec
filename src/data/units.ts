@@ -19,7 +19,7 @@ export const units: BusinessUnit[] = [
     id: 'industrial',
     index: '01',
     name: 'Multi Mec Industrial',
-    shortName: 'Industrial',
+    shortName: 'Repuestos y reparaciones',
     eyebrow: 'Tornería y mecanizado',
     href: '/industrial',
     accent: 'orange',
@@ -27,6 +27,8 @@ export const units: BusinessUnit[] = [
     description:
       'Fabricación de piezas a medida, repuestos industriales y componentes mecanizados para fábricas, talleres e industrias. Trabajamos según plano, muestra o necesidad funcional.',
     services: [
+      'Torneado',
+      'Fresado',
       'Fabricación de piezas a medida',
       'Repuestos industriales',
       'Mecanizado según plano o muestra',
