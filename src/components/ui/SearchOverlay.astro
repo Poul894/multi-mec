@@ -1,0 +1,249 @@
+---
+import Icon from './Icon.astro';
+import { products } from '../../data/products';
+import { works } from '../../data/works';
+
+const searchIndex = [
+  ...products.map((p) => ({
+    type: 'Producto',
+    title: p.name,
+    meta: p.category,
+    href: `/productos/${p.slug}`,
+  })),
+  ...works.map((w) => ({
+    type: 'Trabajo',
+    title: w.title,
+    meta: w.kind,
+    href: '/galeria',
+  })),
+];
+---
+
+<dialog class="search-dialog" data-search aria-label="Buscar en el sitio">
+  <div class="search-dialog__head">
+    <Icon name="search" size={16} />
+    <input
+      type="text"
+      class="search-dialog__input"
+      data-search-input
+      placeholder="Buscar un producto o un trabajo..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button type="button" class="search-dialog__close" data-search-close aria-label="Cerrar búsqueda">
+      <Icon name="close" size={16} />
+    </button>
+  </div>
+  <ul class="search-dialog__results" data-search-results></ul>
+  <p class="search-dialog__empty" data-search-empty hidden>Sin resultados.</p>
+  <p class="search-dialog__hint" data-search-hint>Escribí para buscar en productos y trabajos del taller.</p>
+</dialog>
+
+<script define:vars={{ searchIndex }}>
+  const dialog = document.querySelector('[data-search]');
+  const input = document.querySelector('[data-search-input]');
+  const resultsEl = document.querySelector('[data-search-results]');
+  const emptyEl = document.querySelector('[data-search-empty]');
+  const hintEl = document.querySelector('[data-search-hint]');
+  const openButtons = document.querySelectorAll('[data-search-open]');
+
+  function norm(value) {
+    return value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase();
+  }
+
+  function render(query) {
+    const q = norm(query.trim());
+    resultsEl.innerHTML = '';
+
+    if (!q) {
+      emptyEl.hidden = true;
+      hintEl.hidden = false;
+      return;
+    }
+    hintEl.hidden = true;
+
+    const matches = searchIndex
+      .filter((item) => norm(item.title).includes(q) || norm(item.meta).includes(q))
+      .slice(0, 8);
+
+    emptyEl.hidden = matches.length > 0;
+
+    for (const item of matches) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = item.href;
+      a.className = 'search-dialog__result';
+
+      const type = document.createElement('span');
+      type.className = 'search-dialog__type';
+      type.textContent = item.type;
+
+      const title = document.createElement('span');
+      title.className = 'search-dialog__title';
+      title.textContent = item.title;
+
+      const meta = document.createElement('span');
+      meta.className = 'search-dialog__meta';
+      meta.textContent = item.meta;
+
+      a.append(type, title, meta);
+      li.append(a);
+      resultsEl.append(li);
+    }
+  }
+
+  if (dialog && input) {
+    openButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        dialog.showModal();
+        input.value = '';
+        resultsEl.innerHTML = '';
+        emptyEl.hidden = true;
+        hintEl.hidden = false;
+        requestAnimationFrame(() => input.focus());
+      });
+    });
+
+    dialog.querySelector('[data-search-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    input.addEventListener('input', () => render(input.value));
+  }
+</script>
+
+<style>
+  .search-dialog {
+    width: min(620px, 92vw);
+    max-height: min(70vh, 560px);
+    margin: 10vh auto auto;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+    background: var(--graphite);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  .search-dialog::backdrop {
+    background: rgba(4, 5, 6, 0.88);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .search-dialog__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    color: var(--blue);
+  }
+
+  .search-dialog__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--white);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+  }
+
+  .search-dialog__input:focus {
+    outline: none;
+  }
+
+  .search-dialog__input::placeholder {
+    color: var(--muted-2);
+  }
+
+  .search-dialog__close {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border: 1px solid var(--line-strong);
+    border-radius: 1px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      border-color 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+
+  .search-dialog__close:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .search-dialog__results {
+    max-height: calc(min(70vh, 560px) - 64px);
+    overflow-y: auto;
+  }
+
+  /* Result rows are created client-side (document.createElement), so Astro's
+     scoped class hashing never reaches them — these selectors must stay global. */
+  :global(.search-dialog__result) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.2s var(--ease);
+  }
+
+  :global(.search-dialog__result:hover),
+  :global(.search-dialog__result:focus-visible) {
+    background: var(--graphite-2);
+  }
+
+  :global(.search-dialog__type) {
+    flex: none;
+    width: 64px;
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  :global(.search-dialog__title) {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.88rem;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :global(.search-dialog__meta) {
+    flex: none;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .search-dialog__empty,
+  .search-dialog__hint {
+    padding: 24px 18px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  @media (max-width: 560px) {
+    .search-dialog {
+      margin-top: 6vh;
+    }
+
+    :global(.search-dialog__meta) {
+      display: none;
+    }
+  }
+</style>
