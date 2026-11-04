@@ -27,7 +27,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(0.92);
+  transform: scale(1.02);
   filter: saturate(1.12) contrast(1.06) brightness(0.92);
 }
 
@@ -58,15 +58,16 @@
 
 .hero__inner {
   max-width: 46ch;
+  min-height: min(560px, 72svh);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding-block: clamp(40px, 6vw, 64px) clamp(32px, 5vw, 48px);
+  justify-content: flex-start;
+  padding-block: clamp(20px, 3vw, 32px) clamp(32px, 5vw, 48px);
 }
 
 .hero h1 {
   max-width: 18ch;
-  font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
   line-height: 1.22;
   letter-spacing: -0.01em;
 }
@@ -113,9 +114,9 @@
 .index-row {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: clamp(16px, 3vw, 40px);
-  padding: clamp(18px, 3vw, 30px) clamp(16px, 3vw, 28px);
+  padding: clamp(14px, 2.4vw, 22px) clamp(16px, 3vw, 28px) clamp(36px, 6vw, 56px);
   border-top: 1px solid var(--line);
   overflow: hidden;
   transition: background-color 0.25s var(--ease);
@@ -132,15 +133,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.72;
-  filter: grayscale(0.3) brightness(0.56) contrast(1.05);
+  opacity: 0.88;
+  filter: grayscale(0.2) brightness(0.78) contrast(1.05);
   transition: transform 0.6s var(--ease-out), opacity 0.4s var(--ease), filter 0.4s var(--ease);
 }
 
 .index-row:hover .index-row__bg {
   transform: scale(1.04);
-  opacity: 0.95;
-  filter: grayscale(0) brightness(0.92) contrast(1.08);
+  opacity: 1;
+  filter: grayscale(0) brightness(1.05) contrast(1.08);
 }
 
 .index-row::before {
@@ -148,23 +149,23 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, var(--ink) 0%, rgba(7, 8, 10, 0.55) 55%, rgba(7, 8, 10, 0.72) 100%);
+  background: linear-gradient(165deg, var(--ink) 0%, rgba(7, 8, 10, 0.68) 28%, rgba(7, 8, 10, 0.2) 55%, rgba(7, 8, 10, 0.4) 100%);
   transition: opacity 0.25s var(--ease);
 }
 
 .index-row__num {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   letter-spacing: 0.1em;
   color: var(--blue);
 }
 
 .index-row__title {
   flex: 1;
-  font-size: clamp(1.6rem, 4vw, 2.75rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.65rem);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   color: var(--white);
   transition: transform 0.3s var(--ease-out);

@@ -43,7 +43,7 @@
         height: 630px;
         overflow: hidden;
         background:
-          radial-gradient(circle at 78% 38%, rgba(255, 90, 31, 0.14), transparent 38%),
+          radial-gradient(circle at 78% 38%, rgba(61, 124, 245, 0.16), transparent 38%),
           linear-gradient(118deg, #07080a 42%, #0f1215 100%);
       }
 
@@ -75,15 +75,15 @@
       .frame::before {
         left: -1px;
         top: -1px;
-        border-left: 2px solid #ff5a1f;
-        border-top: 2px solid #ff5a1f;
+        border-left: 2px solid #3d7cf5;
+        border-top: 2px solid #3d7cf5;
       }
 
       .frame::after {
         right: -1px;
         bottom: -1px;
-        border-right: 2px solid #ff5a1f;
-        border-bottom: 2px solid #ff5a1f;
+        border-right: 2px solid #3d7cf5;
+        border-bottom: 2px solid #3d7cf5;
       }
 
       .top {
@@ -102,9 +102,11 @@
         gap: 14px;
       }
 
-      .brand svg {
-        width: 44px;
-        height: 44px;
+      .brand img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+        border-radius: 2px;
       }
 
       .brand strong {
@@ -154,7 +156,7 @@
         content: '';
         width: 30px;
         height: 1px;
-        background: #ff5a1f;
+        background: #3d7cf5;
       }
 
       h1 {
@@ -168,7 +170,7 @@
 
       h1 em {
         font-style: normal;
-        color: #ff5a1f;
+        color: #3d7cf5;
       }
 
       .units {
@@ -191,7 +193,7 @@
       }
 
       .units b {
-        color: #ff5a1f;
+        color: #3d7cf5;
         font-weight: 500;
       }
 
@@ -244,12 +246,7 @@
 
       <header class="top">
         <div class="brand">
-          <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
-            <path d="M1 1h32.5L43 11.5V43H1V1Z" stroke="#f2f0ea" stroke-width="1.4" />
-            <path d="M9 33V13.5l13 10.5 13-10.5V33" stroke="#f2f0ea" stroke-width="2.2" />
-            <path d="M1 38.5h6M37 5.5v6" stroke="#ff5a1f" stroke-width="1.4" />
-            <rect x="37" y="37" width="6" height="6" fill="#ff5a1f" />
-          </svg>
+          <img src="../public/images/logo-gear.jpg" alt="" />
           <div>
             <strong>MULTI MEC</strong>
             <span>TORNERÍA · MECANIZADO</span>
@@ -260,7 +257,7 @@
 
       <main class="content">
         <p class="eyebrow">Tornería · Mecanizado de precisión · Argentina</p>
-        <h1>Precisión que<br />mantiene la industria<br /><em>en marcha.</em></h1>
+        <h1 style="font-size: 62px;">Repuestos y reparaciones<br />de maquinarias<br /><em>industriales.</em></h1>
         <div class="units">
           <span><b>01</b> Industrial</span>
           <span><b>02</b> Fitness</span>
@@ -285,18 +282,18 @@
             <path d="M260 190h48v50h-48z" fill="#181d21" />
             <path d="M308 201h30v28h-30z" fill="#14181c" />
           </g>
-          <g stroke="#ff5a1f" stroke-width="1.2">
+          <g stroke="#3d7cf5" stroke-width="1.2">
             <path d="M100 172h238" stroke-dasharray="4 5" stroke-opacity=".55" />
             <path d="M100 166v12M338 166v12" />
             <path d="M83 188v54M77 188h12M77 242h12" />
             <path d="M182 158v12M260 158v12" />
           </g>
-          <g fill="#ff5a1f">
+          <g fill="#3d7cf5">
             <path d="m100 172-5 3v-6l5 3ZM338 172l5-3v6l-5-3Z" />
             <circle cx="144" cy="158" r="2" />
             <circle cx="286" cy="158" r="2" />
           </g>
-          <g stroke="#ff5a1f" stroke-width="1.2" stroke-opacity=".6">
+          <g stroke="#3d7cf5" stroke-width="1.2" stroke-opacity=".6">
             <path d="M215 112v206" stroke-dasharray="3 6" />
             <path d="M202 112h26M202 318h26" />
           </g>
@@ -310,7 +307,7 @@
             <text x="96" y="152">Ø EXTERIOR</text>
             <text x="58" y="220" transform="rotate(-90 58 220)">LONGITUD</text>
             <text x="280" y="342">EJE ESCALONADO</text>
-            <text x="280" y="356" fill="#ff5a1f">MM-IND / 001</text>
+            <text x="280" y="356" fill="#3d7cf5">MM-IND / 001</text>
           </g>
           <g fill="currentColor" opacity=".45">
             <rect x="380" y="86" width="5" height="5" />
