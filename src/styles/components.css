@@ -1373,7 +1373,8 @@
 .gallery-item__media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: var(--graphite);
 }
 
 .gallery-item__media .work-visual {
@@ -1463,16 +1464,28 @@
 
 .lightbox__media {
   position: relative;
-  aspect-ratio: 16 / 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  max-height: 72vh;
   background: var(--ink);
   color: var(--steel);
 }
 
-.lightbox__media .work-visual,
-.lightbox__media img {
+.lightbox__media .work-visual {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+.lightbox__media img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
 }
 
 .lightbox__caption {
