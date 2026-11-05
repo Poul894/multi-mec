@@ -1678,6 +1678,22 @@
   font-size: clamp(2.4rem, 5.2vw, 4.9rem);
 }
 
+.page-hero--compact {
+  padding-block: clamp(20px, 3vw, 32px) clamp(24px, 3.5vw, 40px);
+}
+
+.page-hero--compact h1 {
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+}
+
+.page-hero--compact .page-hero__lead {
+  margin-top: 12px;
+}
+
+.page-hero--compact .page-hero__actions {
+  margin-top: 20px;
+}
+
 .page-hero__lead {
   max-width: 58ch;
   margin-top: 22px;

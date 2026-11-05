@@ -47,19 +47,16 @@ const schema = {
     index="03"
     eyebrow="Catálogo"
     title="Piezas mecanizadas <span class='accent'>para cada aplicación.</span>"
-    lead="Explorá las líneas de trabajo de Multi Mec Industrial y Multi Mec Fitness. Cada pieza se fabrica según plano, muestra o especificación, en la cantidad que necesites."
+    lead="Explorá las líneas de trabajo de Multi Mec Industrial y Multi Mec Fitness."
     drawing="gear"
     breadcrumbs={[{ label: 'Productos' }]}
     meta={[`${total} fichas técnicas`, 'Industrial y fitness', 'Fabricación a medida']}
+    compact
   >
     <a class="btn btn--primary btn--lg" href="#catalogo">Explorar catálogo</a>
-    <a class="btn btn--outline btn--lg" href="/contacto">
-      Consultar por una pieza
-      <Icon name="arrow-right" size={15} />
-    </a>
   </PageHero>
 
-  <section class="section" id="catalogo">
+  <section class="section section--tight" id="catalogo">
     <div class="container">
       <div class="catalog-toolbar">
         <div class="filter-block">

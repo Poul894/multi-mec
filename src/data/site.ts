@@ -15,11 +15,10 @@ export const site = {
   locale: 'es_AR',
   country: 'Argentina',
   contact: {
-    // PROVISIONAL: reemplazar por el número real (formato internacional, sin + ni espacios).
-    whatsapp: '5490000000000',
-    whatsappDisplay: '+54 9 000 000-0000',
-    phoneDisplay: '+54 9 000 000-0000',
-    email: 'contacto@multimec.com.ar', // PROVISIONAL
+    whatsapp: '5491165061889',
+    whatsappDisplay: '+54 9 11 6506-1889',
+    phoneDisplay: '+54 9 11 6506-1889',
+    email: 'multimec31@gmail.com',
     // PROVISIONAL: completar si se desea mostrar la dirección del taller.
     address: '',
     city: '',
@@ -28,7 +27,7 @@ export const site = {
     hoursNote: 'Consultas por WhatsApp dentro y fuera de ese horario.',
   },
   social: {
-    instagram: '', // PROVISIONAL: URL completa
+    instagram: '', // PENDIENTE: el usuario va a pasar la URL del perfil "Multi-mec"
     facebook: '',
     linkedin: '',
   },

@@ -22,6 +22,7 @@ interface Props {
   meta?: string[];
   photo?: string;
   photoAlt?: string;
+  compact?: boolean;
 }
 
 const {
@@ -35,10 +36,11 @@ const {
   meta = [],
   photo,
   photoAlt = '',
+  compact = false,
 } = Astro.props;
 ---
 
-<section class="page-hero" style={`--accent: var(--${accent});`}>
+<section class:list={['page-hero', compact && 'page-hero--compact']} style={`--accent: var(--${accent});`}>
   <div class="container">
     <Breadcrumbs items={breadcrumbs} />
     <div class="page-hero__grid">
