@@ -11,7 +11,11 @@ const { work } = Astro.props;
 const unitLabel = work.unit === 'fitness' ? 'Fitness' : 'Industrial';
 ---
 
-<article class="gallery-item" data-gallery-item data-unit={work.unit}>
+<article
+  class:list={['gallery-item', `gallery-item--${work.size}`]}
+  data-gallery-item
+  data-unit={work.unit}
+>
   <div class="gallery-item__media">
     {
       work.image ? (

@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # raw source media (originals live only locally; optimized copies are in public/images and public/video)
 /*.jpg
+/*.jpeg
 /*.jfif
 /*.mp4
 
@@ -33,3 +34,7 @@ pnpm-debug.log*
 
 .vercel
 .env*
+
+# secretos / credenciales que no deben publicarse
+vercel-recovery-codes*.txt
+*recovery-codes*
