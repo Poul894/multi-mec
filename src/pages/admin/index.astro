@@ -104,7 +104,7 @@ const fechaHoy = new Date().toLocaleDateString('es-AR', {
 </AdminLayout>
 
 <script>
-  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { requireBrowserSession } from '../../lib/supabase/browser';
   import { setJobEstado } from '../../lib/jobs';
   import type { JobStatus } from '../../lib/jobs';
 
@@ -143,9 +143,11 @@ const fechaHoy = new Date().toLocaleDateString('es-AR', {
       if (!jobId || !next) return;
       button.disabled = true;
       try {
-        await setJobEstado(createSupabaseBrowserClient(), jobId, next);
+        const supabase = await requireBrowserSession();
+        await setJobEstado(supabase, jobId, next);
         window.location.reload();
-      } catch {
+      } catch (error) {
+        console.error('[dashboard]', error);
         button.disabled = false;
       }
     });

@@ -32,7 +32,7 @@ const mostrarCapital = await getMostrarCapital(Astro.locals.supabase);
 </AdminLayout>
 
 <script>
-  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { requireBrowserSession } from '../../lib/supabase/browser';
   import { setMostrarCapital } from '../../lib/config';
 
   const checkbox = document.querySelector<HTMLInputElement>('#mostrar-capital');
@@ -41,13 +41,15 @@ const mostrarCapital = await getMostrarCapital(Astro.locals.supabase);
   checkbox?.addEventListener('change', async () => {
     checkbox.disabled = true;
     try {
-      await setMostrarCapital(createSupabaseBrowserClient(), checkbox.checked);
+      const supabase = await requireBrowserSession();
+      await setMostrarCapital(supabase, checkbox.checked);
       if (statusEl) {
         statusEl.textContent = 'Guardado.';
         statusEl.classList.add('is-visible');
         statusEl.classList.remove('form__status--error');
       }
     } catch (error) {
+      console.error('[configuracion]', error);
       checkbox.checked = !checkbox.checked;
       if (statusEl) {
         statusEl.textContent = error instanceof Error ? error.message : 'No se pudo guardar.';

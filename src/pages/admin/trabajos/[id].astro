@@ -43,7 +43,7 @@ const advanceLabel =
 </AdminLayout>
 
 <script>
-  import { createSupabaseBrowserClient } from '../../../lib/supabase/browser';
+  import { requireBrowserSession } from '../../../lib/supabase/browser';
   import { setJobEstado, deleteJob } from '../../../lib/jobs';
   import type { JobStatus } from '../../../lib/jobs';
 
@@ -54,9 +54,11 @@ const advanceLabel =
     if (!jobId || !nextEstado) return;
     button.disabled = true;
     try {
-      await setJobEstado(createSupabaseBrowserClient(), jobId, nextEstado);
+      const supabase = await requireBrowserSession();
+      await setJobEstado(supabase, jobId, nextEstado);
       window.location.reload();
-    } catch {
+    } catch (error) {
+      console.error('[trabajo-detalle]', error);
       button.disabled = false;
     }
   });
@@ -68,9 +70,11 @@ const advanceLabel =
     if (!window.confirm('¿Eliminar este trabajo? No se puede deshacer.')) return;
     button.disabled = true;
     try {
-      await deleteJob(createSupabaseBrowserClient(), jobId);
+      const supabase = await requireBrowserSession();
+      await deleteJob(supabase, jobId);
       window.location.href = '/admin/trabajos';
-    } catch {
+    } catch (error) {
+      console.error('[trabajo-detalle]', error);
       button.disabled = false;
     }
   });

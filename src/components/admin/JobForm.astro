@@ -108,7 +108,7 @@ const ESTADOS: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado']
 </div>
 
 <script>
-  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { requireBrowserSession } from '../../lib/supabase/browser';
   import { createJob, updateJob } from '../../lib/jobs';
   import type { JobStatus } from '../../lib/jobs';
   import { uploadFoto, fotoPath } from '../../lib/storage';
@@ -167,7 +167,7 @@ const ESTADOS: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado']
       submitBtn?.setAttribute('disabled', 'true');
 
       try {
-        const supabase = createSupabaseBrowserClient();
+        const supabase = await requireBrowserSession();
         const existingId = form.dataset.jobId;
         const id = existingId || crypto.randomUUID();
 
@@ -208,6 +208,7 @@ const ESTADOS: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado']
 
         window.location.href = `/admin/trabajos/${id}`;
       } catch (error) {
+        console.error('[job-form]', error);
         setStatus(error instanceof Error ? error.message : 'No se pudo guardar el trabajo.', true);
         submitBtn?.removeAttribute('disabled');
       }

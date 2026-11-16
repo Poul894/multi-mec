@@ -58,7 +58,7 @@ const tabs: { href: string; label: string; estado: JobStatus | null }[] = [
 </AdminLayout>
 
 <script>
-  import { createSupabaseBrowserClient } from '../../../lib/supabase/browser';
+  import { requireBrowserSession } from '../../../lib/supabase/browser';
   import { setJobEstado } from '../../../lib/jobs';
   import type { JobStatus } from '../../../lib/jobs';
 
@@ -70,10 +70,11 @@ const tabs: { href: string; label: string; estado: JobStatus | null }[] = [
 
       button.disabled = true;
       try {
-        const supabase = createSupabaseBrowserClient();
+        const supabase = await requireBrowserSession();
         await setJobEstado(supabase, jobId, nextEstado);
         window.location.reload();
-      } catch {
+      } catch (error) {
+        console.error('[trabajos]', error);
         button.disabled = false;
       }
     });
