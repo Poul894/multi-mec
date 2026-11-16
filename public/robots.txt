@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
 
 # Dominio provisional: actualizar junto con astro.config.mjs antes de publicar.
 Sitemap: https://www.multimec.com.ar/sitemap-index.xml

@@ -1,0 +1,17 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import QuoteForm from '../../../components/admin/QuoteForm.astro';
+---
+
+<AdminLayout title="Nuevo presupuesto">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Presupuestos</p>
+      <h1>Nuevo presupuesto</h1>
+    </div>
+  </div>
+
+  <QuoteForm />
+</AdminLayout>

@@ -1,0 +1,64 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import MonthCalendar from '../../components/admin/MonthCalendar.astro';
+import UpcomingPanel from '../../components/admin/UpcomingPanel.astro';
+import { listJobs, diasRestantes, urgenciaDe } from '../../lib/jobs';
+import { buildMonthCalendar, resolveMes } from '../../lib/calendar';
+
+const allJobs = await listJobs(Astro.locals.supabase);
+const { year, month } = resolveMes(Astro.url.searchParams.get('mes'));
+const calendar = buildMonthCalendar(allJobs, year, month);
+
+const urgentes = allJobs
+  .filter((job) => urgenciaDe(job) === 'urgente')
+  .sort((a, b) => diasRestantes(a.fecha_entrega) - diasRestantes(b.fecha_entrega));
+
+const proximas = allJobs
+  .filter((job) => job.estado !== 'entregado')
+  .sort((a, b) => diasRestantes(a.fecha_entrega) - diasRestantes(b.fecha_entrega));
+---
+
+<AdminLayout title="Calendario">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Fechas de entrega</p>
+      <h1>Calendario</h1>
+    </div>
+  </div>
+
+  {
+    urgentes.length > 0 && (
+      <div class="admin-alert">
+        <Icon name="alert" size={20} />
+        <div>
+          <strong>Preparar para entregar</strong>
+          <ul>
+            {urgentes.map((job) => {
+              const dias = diasRestantes(job.fecha_entrega);
+              return (
+                <li>
+                  <a href={`/admin/trabajos/${job.id}`}>{job.titulo}</a>
+                  {dias >= 0
+                    ? ` — faltan ${dias} día${dias === 1 ? '' : 's'}`
+                    : ` — vencido hace ${Math.abs(dias)} día${Math.abs(dias) === 1 ? '' : 's'}`}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  <div class="dashboard-calendar-row">
+    <MonthCalendar
+      calendar={calendar}
+      prevHref={`/admin/calendario?mes=${calendar.prevMes}`}
+      nextHref={`/admin/calendario?mes=${calendar.nextMes}`}
+    />
+    <UpcomingPanel jobs={proximas} />
+  </div>
+</AdminLayout>

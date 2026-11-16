@@ -1,0 +1,93 @@
+---
+import StatusTag from './StatusTag.astro';
+import type { Job } from '../../lib/jobs';
+
+interface Props {
+  jobs: Job[];
+}
+
+const { jobs } = Astro.props;
+---
+
+<div class="admin-chart-panel dash-upcoming">
+  <div class="dash-upcoming__head">
+    <h2>Próximas entregas</h2>
+    <button type="button" class="btn btn--quiet" data-upcoming-reset hidden>Volver a próximas entregas</button>
+  </div>
+  <div data-upcoming-content>
+    {
+      jobs.length === 0 ? (
+        <p class="admin-empty">No hay entregas pendientes.</p>
+      ) : (
+        <ul class="dash-upcoming__list">
+          {jobs.map((job) => (
+            <li>
+              <a href={`/admin/trabajos/${job.id}`}>
+                <StatusTag estado={job.estado} />
+                <span>{job.titulo}</span>
+                <span class="dash-upcoming__date">{job.fecha_entrega}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  import { JOB_STATUS_LABEL, JOB_STATUS_VARIANT } from '../../lib/jobs';
+  import type { JobStatus } from '../../lib/jobs';
+
+  type DayJob = { id: string; titulo: string; cliente_nombre: string | null; estado: JobStatus };
+
+  const upcomingContent = document.querySelector<HTMLElement>('[data-upcoming-content]');
+  const resetBtn = document.querySelector<HTMLButtonElement>('[data-upcoming-reset]');
+  const originalUpcomingHTML = upcomingContent?.innerHTML ?? '';
+
+  document.addEventListener('calendar:day-select', (event) => {
+    const { label, jobs } = (event as CustomEvent<{ label: string; jobs: DayJob[] }>).detail;
+    if (!upcomingContent) return;
+
+    upcomingContent.innerHTML = '';
+
+    const dayLabel = document.createElement('p');
+    dayLabel.className = 'dash-upcoming__day-label';
+    dayLabel.textContent = label;
+    upcomingContent.append(dayLabel);
+
+    if (jobs.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'admin-empty';
+      empty.textContent = 'Sin trabajos este día.';
+      upcomingContent.append(empty);
+    } else {
+      const list = document.createElement('ul');
+      list.className = 'dash-upcoming__list';
+      for (const job of jobs) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `/admin/trabajos/${job.id}`;
+
+        const tag = document.createElement('span');
+        tag.className = `tag tag--dot tag--${JOB_STATUS_VARIANT[job.estado]}`;
+        tag.textContent = JOB_STATUS_LABEL[job.estado];
+
+        const title = document.createElement('span');
+        title.textContent = job.titulo;
+
+        a.append(tag, title);
+        li.append(a);
+        list.append(li);
+      }
+      upcomingContent.append(list);
+    }
+
+    if (resetBtn) resetBtn.hidden = false;
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    if (upcomingContent) upcomingContent.innerHTML = originalUpcomingHTML;
+    resetBtn.hidden = true;
+  });
+</script>

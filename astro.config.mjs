@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 
 // IMPORTANTE: reemplazar por el dominio definitivo antes de publicar.
 export default defineConfig({
@@ -14,5 +15,13 @@ export default defineConfig({
   build: {
     inlineStylesheets: 'auto',
   },
-  integrations: [sitemap()],
+  // El sitio sigue siendo estático por defecto: el adapter solo habilita
+  // las rutas puntuales marcadas con `export const prerender = false`
+  // (panel /admin, endpoints /api y /presupuesto/[id]).
+  adapter: vercel(),
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/admin') && !page.includes('/presupuesto/'),
+    }),
+  ],
 });

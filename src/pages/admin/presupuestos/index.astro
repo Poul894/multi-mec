@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import QuoteCard from '../../../components/admin/QuoteCard.astro';
+import { listQuotes } from '../../../lib/quotes';
+import type { QuoteStatus } from '../../../lib/quotes';
+
+const estadoParam = Astro.url.searchParams.get('estado') as QuoteStatus | null;
+const quotes = await listQuotes(Astro.locals.supabase, { estado: estadoParam ?? undefined });
+
+const tabs: { href: string; label: string; estado: QuoteStatus | null }[] = [
+  { href: '/admin/presupuestos', label: 'Todos', estado: null },
+  { href: '/admin/presupuestos?estado=enviado', label: 'Enviados', estado: 'enviado' },
+  { href: '/admin/presupuestos?estado=aceptado', label: 'Aceptados', estado: 'aceptado' },
+  { href: '/admin/presupuestos?estado=rechazado', label: 'Rechazados', estado: 'rechazado' },
+];
+---
+
+<AdminLayout title="Presupuestos">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Presupuestos</p>
+      <h1>Presupuestos</h1>
+    </div>
+    <a class="btn btn--primary" href="/admin/presupuestos/nuevo">Nuevo presupuesto</a>
+  </div>
+
+  <nav class="admin-tabs" aria-label="Filtrar por estado">
+    {
+      tabs.map((tab) => (
+        <a class="admin-tabs__link" href={tab.href} aria-current={tab.estado === estadoParam ? 'page' : undefined}>
+          {tab.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  {
+    quotes.length === 0 ? (
+      <p class="admin-empty">No hay presupuestos en este estado todavía.</p>
+    ) : (
+      <div class="admin-card-grid">
+        {quotes.map((quote) => <QuoteCard quote={quote} />)}
+      </div>
+    )
+  }
+</AdminLayout>

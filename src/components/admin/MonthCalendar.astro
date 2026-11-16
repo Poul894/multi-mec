@@ -1,0 +1,145 @@
+---
+import type { MonthCalendar } from '../../lib/calendar';
+
+interface Props {
+  calendar: MonthCalendar;
+  prevHref: string;
+  nextHref: string;
+}
+
+const { calendar, prevHref, nextHref } = Astro.props;
+const { cells, monthLabel, weekdayLabels } = calendar;
+---
+
+<div class="month-calendar">
+  <div class="month-calendar__head">
+    <p class="admin-eyebrow admin-eyebrow--month">{monthLabel}</p>
+    <div class="month-calendar__nav">
+      <a class="btn btn--outline btn--sm" href={prevHref} aria-label="Mes anterior">←</a>
+      <a class="btn btn--outline btn--sm" href={nextHref} aria-label="Mes siguiente">→</a>
+    </div>
+  </div>
+
+  <div class="cal-grid" data-month-calendar>
+    {weekdayLabels.map((label) => <div class="cal-weekday">{label}</div>)}
+    {
+      cells.map((cell) => {
+        if (!cell) return <div class="cal-day cal-day--empty" />;
+        const jobsPayload = JSON.stringify(
+          cell.jobs.map((job) => ({
+            id: job.id,
+            titulo: job.titulo,
+            cliente_nombre: job.cliente_nombre,
+            estado: job.estado,
+          })),
+        );
+        return (
+          <div
+            class={`cal-day cal-day--${cell.urgenciaCell}`}
+            data-cal-day
+            data-date-key={cell.dateKey}
+            data-jobs={jobsPayload}
+            role="button"
+            tabindex="0"
+          >
+            <span class="cal-day__num">{cell.day}</span>
+            {cell.jobs.map((job) => (
+              <a class="cal-day__job" href={`/admin/trabajos/${job.id}`} title={job.titulo}>
+                <span class={`cal-day__job-dot cal-day__job-dot--${job.estado}`} />
+                {job.titulo}
+              </a>
+            ))}
+          </div>
+        );
+      })
+    }
+  </div>
+</div>
+
+<script>
+  function formatDateKey(dateKey: string): string {
+    const [y, m, d] = dateKey.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-cal-day]').forEach((cell) => {
+    const select = () => {
+      const jobs = JSON.parse(cell.dataset.jobs ?? '[]');
+      const dateKey = cell.dataset.dateKey ?? '';
+      document.dispatchEvent(
+        new CustomEvent('calendar:day-select', {
+          detail: { dateKey, label: formatDateKey(dateKey), jobs },
+        }),
+      );
+    };
+
+    cell.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) return; // deja navegar el link del trabajo
+      select();
+    });
+
+    cell.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        select();
+      }
+    });
+  });
+</script>
+
+<style>
+  .month-calendar__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .month-calendar__nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .cal-day {
+    cursor: pointer;
+  }
+
+  .cal-day--empty {
+    cursor: default;
+  }
+
+  .cal-day:focus-visible {
+    outline: 2px solid var(--blue-2);
+    outline-offset: -2px;
+  }
+
+  .cal-day__job-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    flex: none;
+    margin-right: 4px;
+    border-radius: 50%;
+  }
+
+  .cal-day__job-dot--pendiente {
+    background: var(--orange);
+  }
+
+  .cal-day__job-dot--en_curso {
+    background: var(--blue-2);
+  }
+
+  .cal-day__job-dot--terminado {
+    background: var(--warning);
+  }
+
+  .cal-day__job-dot--entregado {
+    background: var(--green);
+  }
+</style>

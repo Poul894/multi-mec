@@ -1,0 +1,107 @@
+---
+---
+
+<div class="quote-panel">
+  <div class="quote-panel__head">
+    <h3>Nuevo presupuesto</h3>
+    <span>Muestra o plano</span>
+  </div>
+
+  <form class="form form-grid" data-quote-form>
+    <p class="form__status form__status--error" data-quote-form-status></p>
+
+    <div class="field field--full">
+      <label for="cliente_nombre">Cliente<span class="req">*</span></label>
+      <input id="cliente_nombre" name="cliente_nombre" type="text" required />
+    </div>
+
+    <div class="field">
+      <label for="cliente_telefono">WhatsApp del cliente<span class="req">*</span></label>
+      <input id="cliente_telefono" name="cliente_telefono" type="tel" placeholder="5491122334455" required />
+      <p class="field__hint">Con código de país, sin + ni espacios.</p>
+    </div>
+
+    <div class="field">
+      <label for="fecha_entrega_propuesta">Fecha estimada de entrega</label>
+      <input id="fecha_entrega_propuesta" name="fecha_entrega_propuesta" type="date" />
+    </div>
+
+    <div class="field field--full">
+      <label for="descripcion">Descripción del trabajo<span class="req">*</span></label>
+      <textarea id="descripcion" name="descripcion" required></textarea>
+    </div>
+
+    <div class="field">
+      <label for="monto">Monto<span class="req">*</span></label>
+      <input id="monto" name="monto" type="number" min="0" step="0.01" required />
+    </div>
+
+    <div class="field field--full">
+      <label>Foto de la muestra o el plano</label>
+      <input id="foto" name="foto" type="file" accept="image/*" capture="environment" />
+      <p class="field__hint">Podés sacar la foto con la cámara o elegirla del dispositivo.</p>
+    </div>
+
+    <div class="form__actions field--full">
+      <button class="btn btn--primary" type="submit">Crear presupuesto</button>
+      <a class="btn btn--outline" href="/admin/presupuestos">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { createQuote } from '../../lib/quotes';
+  import { uploadFoto, fotoPath } from '../../lib/storage';
+
+  const form = document.querySelector<HTMLFormElement>('[data-quote-form]');
+  if (form) {
+    const statusEl = form.querySelector<HTMLElement>('[data-quote-form-status]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    const setStatus = (message: string, isError: boolean) => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.classList.toggle('is-visible', Boolean(message));
+      statusEl.classList.toggle('form__status--error', isError);
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('', false);
+      submitBtn?.setAttribute('disabled', 'true');
+
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const id = crypto.randomUUID();
+
+        const fileInput = form.querySelector<HTMLInputElement>('#foto');
+        const file = fileInput?.files?.[0];
+        let fotoUrl: string | null = null;
+        if (file) {
+          fotoUrl = await uploadFoto(supabase, fotoPath('presupuestos', id, file), file);
+        }
+
+        const data = new FormData(form);
+        const input = {
+          cliente_nombre: String(data.get('cliente_nombre') ?? '').trim(),
+          cliente_telefono: String(data.get('cliente_telefono') ?? '').trim(),
+          descripcion: String(data.get('descripcion') ?? '').trim(),
+          monto: Number(data.get('monto') ?? 0),
+          fecha_entrega_propuesta: String(data.get('fecha_entrega_propuesta') ?? '') || null,
+          foto_url: fotoUrl,
+        };
+
+        if (!input.cliente_nombre || !input.cliente_telefono || !input.descripcion || !input.monto) {
+          throw new Error('Completá cliente, WhatsApp, descripción y monto.');
+        }
+
+        await createQuote(supabase, id, input);
+        window.location.href = `/admin/presupuestos/${id}`;
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : 'No se pudo crear el presupuesto.', true);
+        submitBtn?.removeAttribute('disabled');
+      }
+    });
+  }
+</script>

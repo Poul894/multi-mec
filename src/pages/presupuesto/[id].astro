@@ -1,0 +1,108 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { createSupabaseAnonClient } from '../../lib/supabase/server';
+import { getPublicQuote } from '../../lib/quotes';
+
+const { id } = Astro.params;
+const supabase = createSupabaseAnonClient();
+const quote = id ? await getPublicQuote(supabase, id) : null;
+
+if (!quote) {
+  return new Response(null, { status: 404 });
+}
+
+const fechaEstimada = quote.fecha_entrega_propuesta
+  ? new Date(`${quote.fecha_entrega_propuesta}T00:00:00`).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    })
+  : null;
+
+const montoFormateado = quote.monto.toLocaleString('es-AR', {
+  style: 'currency',
+  currency: 'ARS',
+  maximumFractionDigits: 0,
+});
+---
+
+<BaseLayout title={`Presupuesto para ${quote.cliente_nombre}`} noindex>
+  <section class="section section--tight">
+    <div class="container container--narrow">
+      <div class="quote-panel" data-quote-id={quote.id} data-quote-estado={quote.estado}>
+        <div class="quote-panel__head">
+          <h3>Presupuesto Multi Mec</h3>
+          <span>Para {quote.cliente_nombre}</span>
+        </div>
+
+        {quote.foto_url && <img class="quote-panel__photo" src={quote.foto_url} alt="Muestra o plano del trabajo" />}
+
+        <p>{quote.descripcion}</p>
+        <p><strong>Monto:</strong> {montoFormateado}</p>
+        {fechaEstimada && <p><strong>Fecha estimada de entrega:</strong> {fechaEstimada}</p>}
+
+        <div data-quote-pending hidden={quote.estado !== 'enviado'}>
+          <div class="form__actions">
+            <button type="button" class="btn btn--primary" data-decidir="true">Aceptar presupuesto</button>
+            <button type="button" class="btn btn--outline" data-decidir="false">Rechazar</button>
+          </div>
+          <p class="form__status" data-quote-status></p>
+        </div>
+
+        <div data-quote-resultado hidden={quote.estado === 'enviado'}>
+          <p class="form__status is-visible">
+            {quote.estado === 'aceptado' && 'Ya aceptaste este presupuesto. Nos vamos a poner en contacto para coordinar la entrega.'}
+            {quote.estado === 'rechazado' && 'Marcaste este presupuesto como rechazado.'}
+            {quote.estado === 'borrador' && 'Este presupuesto todavía no fue enviado.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { decidirPresupuesto } from '../../lib/quotes';
+
+  const panel = document.querySelector<HTMLElement>('[data-quote-id]');
+  const pendingBlock = document.querySelector<HTMLElement>('[data-quote-pending]');
+  const resultBlock = document.querySelector<HTMLElement>('[data-quote-resultado]');
+  const statusEl = document.querySelector<HTMLElement>('[data-quote-status]');
+
+  panel?.querySelectorAll<HTMLButtonElement>('[data-decidir]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const quoteId = panel.dataset.quoteId;
+      if (!quoteId) return;
+      const aceptar = button.dataset.decidir === 'true';
+
+      panel.querySelectorAll('button').forEach((b) => b.setAttribute('disabled', 'true'));
+      if (statusEl) {
+        statusEl.textContent = 'Guardando tu respuesta...';
+        statusEl.classList.add('is-visible');
+      }
+
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const estado = await decidirPresupuesto(supabase, quoteId, aceptar);
+        if (pendingBlock) pendingBlock.hidden = true;
+        if (resultBlock) resultBlock.hidden = false;
+        const message = resultBlock?.querySelector('.form__status');
+        if (message) {
+          message.textContent =
+            estado === 'aceptado'
+              ? 'Ya aceptaste este presupuesto. Nos vamos a poner en contacto para coordinar la entrega.'
+              : 'Marcaste este presupuesto como rechazado.';
+        }
+      } catch (error) {
+        if (statusEl) {
+          statusEl.textContent = error instanceof Error ? error.message : 'No se pudo guardar tu respuesta.';
+          statusEl.classList.add('form__status--error');
+        }
+        panel.querySelectorAll('button').forEach((b) => b.removeAttribute('disabled'));
+      }
+    });
+  });
+</script>

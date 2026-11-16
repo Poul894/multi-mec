@@ -1,0 +1,153 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import JobCard from '../../components/admin/JobCard.astro';
+import JobQuickCreateDialog from '../../components/admin/JobQuickCreateDialog.astro';
+import MonthCalendar from '../../components/admin/MonthCalendar.astro';
+import UpcomingPanel from '../../components/admin/UpcomingPanel.astro';
+import { listJobs, diasRestantes, urgenciaDe } from '../../lib/jobs';
+import { buildMonthCalendar, resolveMes } from '../../lib/calendar';
+
+const allJobs = await listJobs(Astro.locals.supabase, { orderBy: 'updated_at' });
+
+const { year, month } = resolveMes(Astro.url.searchParams.get('mes'));
+const calendar = buildMonthCalendar(allJobs, year, month);
+
+const pendientes = allJobs.filter((job) => job.estado === 'pendiente').length;
+const enProceso = allJobs.filter((job) => job.estado === 'en_curso').length;
+const terminados = allJobs.filter((job) => job.estado === 'terminado').length;
+const entregasProximas = allJobs.filter((job) => urgenciaDe(job) === 'urgente').length;
+
+const proximasEntregas = [...allJobs]
+  .filter((job) => job.estado !== 'entregado')
+  .sort((a, b) => diasRestantes(a.fecha_entrega) - diasRestantes(b.fecha_entrega))
+  .slice(0, 6);
+
+const recientes = allJobs.slice(0, 12);
+
+const hora = new Date().getHours();
+const saludo = hora < 12 ? 'Buenos días' : hora < 20 ? 'Buenas tardes' : 'Buenas noches';
+const fechaHoy = new Date().toLocaleDateString('es-AR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<AdminLayout title="Panel de control">
+  <div class="dash-hero">
+    <div>
+      <p class="admin-eyebrow">{saludo}</p>
+      <h1>Panel de control</h1>
+      <p class="dash-hero__date">{fechaHoy}</p>
+    </div>
+    <JobQuickCreateDialog />
+  </div>
+
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <p class="admin-stat__label">Pendientes</p>
+      <p class="admin-stat__value">{pendientes}</p>
+    </div>
+    <div class="admin-stat">
+      <p class="admin-stat__label">En proceso</p>
+      <p class="admin-stat__value">{enProceso}</p>
+    </div>
+    <div class="admin-stat">
+      <p class="admin-stat__label">Terminados</p>
+      <p class="admin-stat__value">{terminados}</p>
+    </div>
+    <div class="admin-stat">
+      <p class="admin-stat__label">Entregas próximas</p>
+      <p class="admin-stat__value">{entregasProximas}</p>
+    </div>
+  </div>
+
+  <div class="dashboard-calendar-row">
+    <MonthCalendar calendar={calendar} prevHref={`/admin?mes=${calendar.prevMes}`} nextHref={`/admin?mes=${calendar.nextMes}`} />
+    <UpcomingPanel jobs={proximasEntregas} />
+  </div>
+
+  <div class="admin-page-head admin-page-head--spaced">
+    <div>
+      <p class="admin-eyebrow">Taller</p>
+      <h2>Trabajos recientes y activos</h2>
+    </div>
+    <a class="btn btn--outline btn--sm" href="/admin/trabajos">Ver todos los trabajos</a>
+  </div>
+
+  <div class="job-filter-bar">
+    <input type="search" placeholder="Buscar por cliente o pieza..." data-job-search aria-label="Buscar trabajos" />
+    <select data-job-filter-estado aria-label="Filtrar por estado">
+      <option value="">Todos los estados</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="en_curso">En proceso</option>
+      <option value="terminado">Terminado</option>
+      <option value="entregado">Entregado</option>
+    </select>
+  </div>
+
+  {
+    recientes.length === 0 ? (
+      <p class="admin-empty">Todavía no hay trabajos cargados.</p>
+    ) : (
+      <div class="admin-card-grid" data-job-list>
+        {recientes.map((job) => <JobCard job={job} />)}
+      </div>
+    )
+  }
+  <p class="admin-empty" data-job-list-empty hidden>
+    No hay trabajos que coincidan con la búsqueda.
+  </p>
+</AdminLayout>
+
+<script>
+  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { setJobEstado } from '../../lib/jobs';
+  import type { JobStatus } from '../../lib/jobs';
+
+  // Buscador + filtro de estado sobre el listado de trabajos recientes.
+  const searchInput = document.querySelector<HTMLInputElement>('[data-job-search]');
+  const estadoSelect = document.querySelector<HTMLSelectElement>('[data-job-filter-estado]');
+  const jobList = document.querySelector<HTMLElement>('[data-job-list]');
+  const emptyMsg = document.querySelector<HTMLElement>('[data-job-list-empty]');
+
+  function applyFilters() {
+    if (!jobList) return;
+    const query = (searchInput?.value ?? '').trim().toLowerCase();
+    const estado = estadoSelect?.value ?? '';
+    let visibleCount = 0;
+
+    jobList.querySelectorAll<HTMLElement>('.job-card').forEach((card) => {
+      const matchesQuery =
+        !query || (card.dataset.cliente ?? '').includes(query) || (card.dataset.titulo ?? '').includes(query);
+      const matchesEstado = !estado || card.dataset.estado === estado;
+      const visible = matchesQuery && matchesEstado;
+      card.hidden = !visible;
+      if (visible) visibleCount += 1;
+    });
+
+    if (emptyMsg) emptyMsg.hidden = visibleCount > 0;
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+  estadoSelect?.addEventListener('change', applyFilters);
+
+  // Avanzar de estado directo desde la tarjeta.
+  document.querySelectorAll<HTMLButtonElement>('[data-advance]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const jobId = button.dataset.jobId;
+      const next = button.dataset.nextEstado as JobStatus | undefined;
+      if (!jobId || !next) return;
+      button.disabled = true;
+      try {
+        await setJobEstado(createSupabaseBrowserClient(), jobId, next);
+        window.location.reload();
+      } catch {
+        button.disabled = false;
+      }
+    });
+  });
+</script>

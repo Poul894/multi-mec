@@ -1,0 +1,32 @@
+---
+import Icon from '../ui/Icon.astro';
+import { QUOTE_STATUS_LABEL } from '../../lib/quotes';
+import type { Quote } from '../../lib/quotes';
+
+interface Props {
+  quote: Quote;
+}
+
+const { quote } = Astro.props;
+const variant =
+  quote.estado === 'aceptado' ? 'green' : quote.estado === 'rechazado' ? 'red' : quote.estado === 'enviado' ? 'blue' : 'orange';
+const fecha = new Date(quote.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+---
+
+<article class="job-card">
+  <a class="job-card__media" href={`/admin/presupuestos/${quote.id}`} aria-hidden="true" tabindex="-1">
+    {quote.foto_url ? <img src={quote.foto_url} alt="" loading="lazy" /> : <Icon name="quote" size={26} />}
+  </a>
+  <div class="job-card__body">
+    <div class="job-card__head">
+      <span class={`tag tag--dot tag--${variant}`}>{QUOTE_STATUS_LABEL[quote.estado]}</span>
+    </div>
+    <h3 class="job-card__title">
+      <a href={`/admin/presupuestos/${quote.id}`}>{quote.cliente_nombre}</a>
+    </h3>
+    <p class="job-card__client">{quote.descripcion}</p>
+    <p class="job-card__date">
+      {quote.monto.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })} · {fecha}
+    </p>
+  </div>
+</article>

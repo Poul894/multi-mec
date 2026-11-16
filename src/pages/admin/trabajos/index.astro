@@ -1,0 +1,99 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import JobCard from '../../../components/admin/JobCard.astro';
+import { listJobs, JOB_STATUS_LABEL } from '../../../lib/jobs';
+import type { JobStatus } from '../../../lib/jobs';
+
+const estadoParam = Astro.url.searchParams.get('estado') as JobStatus | null;
+const jobs = await listJobs(Astro.locals.supabase, { estado: estadoParam ?? undefined });
+
+const estados: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado'];
+const tabs: { href: string; label: string; estado: JobStatus | null }[] = [
+  { href: '/admin/trabajos', label: 'Todos', estado: null },
+  ...estados.map((estado) => ({
+    href: `/admin/trabajos?estado=${estado}`,
+    label: JOB_STATUS_LABEL[estado],
+    estado,
+  })),
+];
+---
+
+<AdminLayout title="Trabajos">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Control de trabajos</p>
+      <h1>Trabajos</h1>
+    </div>
+    <a class="btn btn--primary" href="/admin/trabajos/nuevo">Nuevo trabajo</a>
+  </div>
+
+  <nav class="admin-tabs" aria-label="Filtrar por estado">
+    {
+      tabs.map((tab) => (
+        <a class="admin-tabs__link" href={tab.href} aria-current={tab.estado === estadoParam ? 'page' : undefined}>
+          {tab.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="job-filter-bar">
+    <input type="search" placeholder="Buscar por cliente o pieza..." data-job-search aria-label="Buscar trabajos" />
+  </div>
+
+  {
+    jobs.length === 0 ? (
+      <p class="admin-empty">No hay trabajos en este estado todavía.</p>
+    ) : (
+      <div class="admin-card-grid" data-job-list>
+        {jobs.map((job) => <JobCard job={job} />)}
+      </div>
+    )
+  }
+  <p class="admin-empty" data-job-list-empty hidden>
+    No hay trabajos que coincidan con la búsqueda.
+  </p>
+</AdminLayout>
+
+<script>
+  import { createSupabaseBrowserClient } from '../../../lib/supabase/browser';
+  import { setJobEstado } from '../../../lib/jobs';
+  import type { JobStatus } from '../../../lib/jobs';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-advance]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const jobId = button.dataset.jobId;
+      const nextEstado = button.dataset.nextEstado as JobStatus | undefined;
+      if (!jobId || !nextEstado) return;
+
+      button.disabled = true;
+      try {
+        const supabase = createSupabaseBrowserClient();
+        await setJobEstado(supabase, jobId, nextEstado);
+        window.location.reload();
+      } catch {
+        button.disabled = false;
+      }
+    });
+  });
+
+  const searchInput = document.querySelector<HTMLInputElement>('[data-job-search]');
+  const jobList = document.querySelector<HTMLElement>('[data-job-list]');
+  const emptyMsg = document.querySelector<HTMLElement>('[data-job-list-empty]');
+
+  searchInput?.addEventListener('input', () => {
+    if (!jobList) return;
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    jobList.querySelectorAll<HTMLElement>('.job-card').forEach((card) => {
+      const visible = !query || (card.dataset.cliente ?? '').includes(query) || (card.dataset.titulo ?? '').includes(query);
+      card.hidden = !visible;
+      if (visible) visibleCount += 1;
+    });
+
+    if (emptyMsg) emptyMsg.hidden = visibleCount > 0;
+  });
+</script>

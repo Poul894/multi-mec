@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getMostrarCapital } from '../../lib/config';
+
+const mostrarCapital = await getMostrarCapital(Astro.locals.supabase);
+---
+
+<AdminLayout title="Configuración">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Panel Multi Mec</p>
+      <h1>Configuración</h1>
+    </div>
+  </div>
+
+  <div class="quote-panel">
+    <div class="quote-panel__head">
+      <h3>Dashboard</h3>
+      <span>Capital</span>
+    </div>
+
+    <label class="checkbox">
+      <input type="checkbox" id="mostrar-capital" checked={mostrarCapital} />
+      Mostrar el capital generado (montos) en el dashboard. Si está apagado, el dashboard
+      solo muestra la cantidad de trabajos entregados por período.
+    </label>
+
+    <p class="form__status" data-config-status></p>
+  </div>
+</AdminLayout>
+
+<script>
+  import { createSupabaseBrowserClient } from '../../lib/supabase/browser';
+  import { setMostrarCapital } from '../../lib/config';
+
+  const checkbox = document.querySelector<HTMLInputElement>('#mostrar-capital');
+  const statusEl = document.querySelector<HTMLElement>('[data-config-status]');
+
+  checkbox?.addEventListener('change', async () => {
+    checkbox.disabled = true;
+    try {
+      await setMostrarCapital(createSupabaseBrowserClient(), checkbox.checked);
+      if (statusEl) {
+        statusEl.textContent = 'Guardado.';
+        statusEl.classList.add('is-visible');
+        statusEl.classList.remove('form__status--error');
+      }
+    } catch (error) {
+      checkbox.checked = !checkbox.checked;
+      if (statusEl) {
+        statusEl.textContent = error instanceof Error ? error.message : 'No se pudo guardar.';
+        statusEl.classList.add('is-visible', 'form__status--error');
+      }
+    } finally {
+      checkbox.disabled = false;
+    }
+  });
+</script>

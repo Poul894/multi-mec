@@ -1,0 +1,47 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { IconName } from '../ui/Icon.astro';
+
+const navItems: { href: string; label: string; icon: IconName }[] = [
+  { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/admin/trabajos', label: 'Trabajos', icon: 'shaft' },
+  { href: '/admin/presupuestos', label: 'Presupuestos', icon: 'quote' },
+  { href: '/admin/calendario', label: 'Calendario', icon: 'calendar' },
+  { href: '/admin/estadisticas', label: 'Estadísticas', icon: 'chart' },
+  { href: '/admin/configuracion', label: 'Config', icon: 'pulley' },
+];
+
+const { pathname } = Astro.url;
+const isLoggedIn = Boolean(Astro.locals.user);
+---
+
+<header class="admin-header">
+  <a class="admin-header__brand" href="/admin">
+    <Icon name="bushing" size={20} />
+    MULTI MEC <span>/ PANEL</span>
+  </a>
+
+  {
+    isLoggedIn && (
+      <>
+        <nav class="admin-nav" aria-label="Secciones del panel">
+          {navItems.map((item) => {
+            const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            return (
+              <a class="admin-nav__link" href={item.href} aria-current={active ? 'page' : undefined}>
+                <Icon name={item.icon} size={16} />
+                {item.label}
+              </a>
+            );
+          })}
+        </nav>
+        <form method="POST" action="/api/admin/logout">
+          <button type="submit" class="admin-nav__link admin-header__logout" aria-label="Cerrar sesión">
+            <Icon name="logout" size={16} />
+            Salir
+          </button>
+        </form>
+      </>
+    )
+  }
+</header>

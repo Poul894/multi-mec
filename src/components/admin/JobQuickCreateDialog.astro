@@ -1,0 +1,73 @@
+---
+import Icon from '../ui/Icon.astro';
+import JobForm from './JobForm.astro';
+---
+
+<button type="button" class="btn btn--primary btn--lg job-quick-cta" data-job-dialog-open>
+  <Icon name="plus" size={18} />
+  Cargar nuevo trabajo
+</button>
+
+<dialog class="job-dialog" data-job-dialog aria-label="Cargar nuevo trabajo">
+  <button type="button" class="job-dialog__close" data-job-dialog-close aria-label="Cerrar">
+    <Icon name="close" size={16} />
+  </button>
+  <JobForm />
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-job-dialog]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-job-dialog-open]');
+  const closeBtn = dialog?.querySelector<HTMLButtonElement>('[data-job-dialog-close]');
+
+  openBtn?.addEventListener('click', () => dialog?.showModal());
+  closeBtn?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>
+
+<style>
+  .job-quick-cta {
+    box-shadow: 0 0 0 1px rgba(61, 124, 245, 0.3);
+  }
+
+  .job-dialog {
+    position: relative;
+    width: min(680px, 94vw);
+    max-height: 90vh;
+    margin: 5vh auto auto;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: transparent;
+    overflow-y: auto;
+  }
+
+  .job-dialog::backdrop {
+    background: rgba(4, 5, 6, 0.88);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .job-dialog__close {
+    position: absolute;
+    top: clamp(20px, 3vw, 32px);
+    right: clamp(20px, 3vw, 32px);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(7, 8, 10, 0.24);
+    border-radius: 1px;
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .job-dialog__close:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+</style>

@@ -1,0 +1,13 @@
+---
+import type { JobStatus } from '../../lib/jobs';
+import { JOB_STATUS_LABEL, JOB_STATUS_VARIANT } from '../../lib/jobs';
+
+interface Props {
+  estado: JobStatus;
+}
+
+const { estado } = Astro.props;
+const variant = JOB_STATUS_VARIANT[estado];
+---
+
+<span class={`tag tag--dot tag--${variant}`}>{JOB_STATUS_LABEL[estado]}</span>

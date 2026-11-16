@@ -1,0 +1,40 @@
+---
+interface Point {
+  label: string;
+  value: number;
+}
+
+interface Props {
+  points: Point[];
+  ariaLabel: string;
+  color?: string;
+  formato?: 'entero' | 'moneda';
+}
+
+const { points, ariaLabel, color = 'var(--blue)', formato = 'entero' } = Astro.props;
+const max = Math.max(1, ...points.map((p) => p.value));
+
+const format = (n: number): string =>
+  formato === 'moneda'
+    ? n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
+    : n.toLocaleString('es-AR');
+---
+
+<div class="bar-chart" role="img" aria-label={ariaLabel}>
+  <div class="bar-chart__plot">
+    {
+      points.map((point) => (
+        <div class="bar-chart__col">
+          <div
+            class="bar-chart__bar"
+            style={{ '--value': `${max > 0 ? (point.value / max) * 100 : 0}%`, '--bar-color': color }}
+            title={`${point.label}: ${format(point.value)}`}
+          />
+        </div>
+      ))
+    }
+  </div>
+  <div class="bar-chart__axis">
+    {points.map((point) => <span class="bar-chart__label">{point.label}</span>)}
+  </div>
+</div>

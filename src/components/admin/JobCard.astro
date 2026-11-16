@@ -1,0 +1,60 @@
+---
+import Icon from '../ui/Icon.astro';
+import StatusTag from './StatusTag.astro';
+import { urgenciaDe, diasRestantes, nextEstado, JOB_STATUS_LABEL } from '../../lib/jobs';
+import type { Job } from '../../lib/jobs';
+
+interface Props {
+  job: Job;
+}
+
+const { job } = Astro.props;
+const urgencia = urgenciaDe(job);
+const dias = diasRestantes(job.fecha_entrega);
+const formatFecha = (fecha: string) =>
+  new Date(`${fecha}T00:00:00`).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+const siguiente = nextEstado(job.estado);
+const plural = (n: number) => (Math.abs(n) === 1 ? '' : 's');
+const advanceLabel = siguiente === 'entregado' ? 'Marcar entregado' : `Pasar a ${JOB_STATUS_LABEL[siguiente ?? 'pendiente'].toLowerCase()}`;
+---
+
+<article
+  class="job-card"
+  data-job-id={job.id}
+  data-estado={job.estado}
+  data-cliente={(job.cliente_nombre ?? '').toLowerCase()}
+  data-titulo={job.titulo.toLowerCase()}
+>
+  <a class="job-card__media" href={`/admin/trabajos/${job.id}`} aria-hidden="true" tabindex="-1">
+    {job.fotos[0] ? <img src={job.fotos[0]} alt="" loading="lazy" /> : <Icon name="shaft" size={26} />}
+  </a>
+  <div class="job-card__body">
+    <div class="job-card__head">
+      <StatusTag estado={job.estado} />
+      {urgencia === 'urgente' && <span class="tag tag--dot tag--red">Urgente</span>}
+    </div>
+    <h3 class="job-card__title">
+      <a href={`/admin/trabajos/${job.id}`}>{job.titulo}</a>
+    </h3>
+    {job.cliente_nombre && <p class="job-card__client">{job.cliente_nombre}</p>}
+    <p class="job-card__date">Ingreso: {formatFecha(job.fecha_ingreso)}</p>
+    <p class="job-card__date">
+      Entrega: {formatFecha(job.fecha_entrega)}
+      {job.estado !== 'entregado' &&
+        (dias >= 0 ? ` · faltan ${dias} día${plural(dias)}` : ` · vencido hace ${Math.abs(dias)} día${plural(dias)}`)}
+    </p>
+  </div>
+  {
+    siguiente && (
+      <button
+        type="button"
+        class="btn btn--outline btn--sm job-card__advance"
+        data-advance
+        data-job-id={job.id}
+        data-next-estado={siguiente}
+      >
+        {advanceLabel}
+      </button>
+    )
+  }
+</article>

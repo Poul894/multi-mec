@@ -30,6 +30,8 @@
   --blue-2: #6a9bff;
   --blue-deep: #1d4fc4;
   --green: #25d366;
+  --danger: #e5484d;
+  --warning: #f5a524;
 
   /* Lines */
   --line: rgba(235, 239, 241, 0.12);

@@ -1,0 +1,17 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import JobForm from '../../../components/admin/JobForm.astro';
+---
+
+<AdminLayout title="Nuevo trabajo">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Control de trabajos</p>
+      <h1>Nuevo trabajo</h1>
+    </div>
+  </div>
+
+  <JobForm />
+</AdminLayout>

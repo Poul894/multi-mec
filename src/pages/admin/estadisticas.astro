@@ -1,0 +1,93 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import BarChart from '../../components/admin/BarChart.astro';
+import { getEntregasPorPeriodo, GRANULARIDAD_LABEL } from '../../lib/metrics';
+import type { Granularidad } from '../../lib/metrics';
+import { getMostrarCapital } from '../../lib/config';
+
+const granularidadParam = Astro.url.searchParams.get('periodo') as Granularidad | null;
+const granularidad: Granularidad =
+  granularidadParam && granularidadParam in GRANULARIDAD_LABEL ? granularidadParam : 'semana';
+
+const [puntos, mostrarCapital] = await Promise.all([
+  getEntregasPorPeriodo(Astro.locals.supabase, granularidad),
+  getMostrarCapital(Astro.locals.supabase),
+]);
+
+const totalCantidad = puntos.reduce((acc, p) => acc + p.cantidad, 0);
+const totalMonto = puntos.reduce((acc, p) => acc + p.monto, 0);
+const granularidades: Granularidad[] = ['dia', 'semana', 'quincena', 'mes'];
+---
+
+<AdminLayout title="Estadísticas">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Panel Multi Mec</p>
+      <h1>Estadísticas</h1>
+    </div>
+  </div>
+
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <p class="admin-stat__label">Entregados ({GRANULARIDAD_LABEL[granularidad].toLowerCase()})</p>
+      <p class="admin-stat__value">{totalCantidad}</p>
+    </div>
+    {
+      mostrarCapital && (
+        <div class="admin-stat">
+          <p class="admin-stat__label">Capital generado ({GRANULARIDAD_LABEL[granularidad].toLowerCase()})</p>
+          <p class="admin-stat__value">
+            {totalMonto.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })}
+          </p>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="admin-chart-panel">
+    <div class="admin-chart-panel__head">
+      <h2>Trabajos entregados</h2>
+      <nav class="admin-tabs" aria-label="Agrupar por período">
+        {
+          granularidades.map((g) => (
+            <a
+              class="admin-tabs__link"
+              href={`/admin/estadisticas?periodo=${g}`}
+              aria-current={g === granularidad ? 'page' : undefined}
+            >
+              {GRANULARIDAD_LABEL[g]}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+    <BarChart
+      points={puntos.map((p) => ({ label: p.label, value: p.cantidad }))}
+      ariaLabel={`Trabajos entregados por ${GRANULARIDAD_LABEL[granularidad].toLowerCase()}`}
+      color="var(--blue)"
+      formato="entero"
+    />
+  </div>
+
+  {
+    mostrarCapital && (
+      <div class="admin-chart-panel">
+        <div class="admin-chart-panel__head">
+          <h2>Capital generado</h2>
+        </div>
+        <BarChart
+          points={puntos.map((p) => ({ label: p.label, value: p.monto }))}
+          ariaLabel={`Capital generado por ${GRANULARIDAD_LABEL[granularidad].toLowerCase()}`}
+          color="var(--green)"
+          formato="moneda"
+        />
+      </div>
+    )
+  }
+
+  <p class="form__note">
+    ¿Querés mostrar u ocultar el capital generado? Se configura en <a href="/admin/configuracion">Configuración</a>.
+  </p>
+</AdminLayout>

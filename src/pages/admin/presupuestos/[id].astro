@@ -1,0 +1,66 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import Icon from '../../../components/ui/Icon.astro';
+import { getQuote, getJobByQuoteId, QUOTE_STATUS_LABEL } from '../../../lib/quotes';
+import { clientWhatsappLink, buildQuoteMessage } from '../../../lib/whatsapp-client';
+
+const { id } = Astro.params;
+const quote = id ? await getQuote(Astro.locals.supabase, id) : null;
+
+if (!quote) {
+  return new Response(null, { status: 404 });
+}
+
+const job = quote.estado === 'aceptado' ? await getJobByQuoteId(Astro.locals.supabase, quote.id) : null;
+const publicLink = new URL(`/presupuesto/${quote.id}`, Astro.url.origin).toString();
+const whatsappHref = clientWhatsappLink(quote.cliente_telefono, buildQuoteMessage(quote, publicLink));
+
+const variant =
+  quote.estado === 'aceptado' ? 'green' : quote.estado === 'rechazado' ? 'red' : quote.estado === 'enviado' ? 'blue' : 'orange';
+---
+
+<AdminLayout title={quote.cliente_nombre}>
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Presupuestos</p>
+      <h1>{quote.cliente_nombre}</h1>
+    </div>
+    <span class={`tag tag--dot tag--${variant}`}>{QUOTE_STATUS_LABEL[quote.estado]}</span>
+  </div>
+
+  <div class="quote-panel">
+    <div class="quote-panel__head">
+      <h3>Detalle del presupuesto</h3>
+      <span>{quote.id.slice(0, 8)}</span>
+    </div>
+
+    {quote.foto_url && <img class="quote-panel__photo" src={quote.foto_url} alt="" />}
+
+    <p><strong>Descripción:</strong> {quote.descripcion}</p>
+    <p><strong>Monto:</strong> {quote.monto.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })}</p>
+    {quote.fecha_entrega_propuesta && <p><strong>Fecha estimada:</strong> {quote.fecha_entrega_propuesta}</p>}
+    <p><strong>WhatsApp del cliente:</strong> {quote.cliente_telefono}</p>
+
+    {
+      quote.estado === 'enviado' && (
+        <div class="form__actions">
+          <a class="btn btn--primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+            <Icon name="whatsapp" size={16} /> Enviar por WhatsApp
+          </a>
+        </div>
+      )
+    }
+
+    {
+      quote.estado === 'aceptado' && job && (
+        <p class="form__note">
+          El cliente aceptó. Se creó el trabajo correspondiente: <a href={`/admin/trabajos/${job.id}`}>ver trabajo</a>.
+        </p>
+      )
+    }
+
+    {quote.estado === 'rechazado' && <p class="form__note">El cliente rechazó este presupuesto.</p>}
+  </div>
+</AdminLayout>
