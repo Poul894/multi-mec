@@ -5,10 +5,15 @@ interface Props {
   calendar: MonthCalendar;
   prevHref: string;
   nextHref: string;
+  /** Oculta (atenuadas, sin trabajos ni click) las celdas de días ya pasados. */
+  hidePast?: boolean;
 }
 
-const { calendar, prevHref, nextHref } = Astro.props;
+const { calendar, prevHref, nextHref, hidePast = false } = Astro.props;
 const { cells, monthLabel, weekdayLabels } = calendar;
+
+const now = new Date();
+const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 ---
 
 <div class="month-calendar">
@@ -25,6 +30,16 @@ const { cells, monthLabel, weekdayLabels } = calendar;
     {
       cells.map((cell) => {
         if (!cell) return <div class="cal-day cal-day--empty" />;
+
+        const isPast = hidePast && cell.dateKey < todayKey;
+        if (isPast) {
+          return (
+            <div class="cal-day cal-day--past">
+              <span class="cal-day__num">{cell.day}</span>
+            </div>
+          );
+        }
+
         const jobsPayload = JSON.stringify(
           cell.jobs.map((job) => ({
             id: job.id,
@@ -54,6 +69,15 @@ const { cells, monthLabel, weekdayLabels } = calendar;
       })
     }
   </div>
+
+  {
+    hidePast && (
+      <p class="month-calendar__hint">
+        Los días anteriores a hoy están atenuados. Para ver el historial completo, entrá a{' '}
+        <a href="/admin/calendario">Calendario</a>.
+      </p>
+    )
+  }
 </div>
 
 <script>
@@ -105,12 +129,29 @@ const { cells, monthLabel, weekdayLabels } = calendar;
     gap: 8px;
   }
 
+  .month-calendar__hint {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    color: var(--muted-2);
+  }
+
+  .month-calendar__hint a {
+    color: var(--blue-2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   .cal-day {
     cursor: pointer;
   }
 
   .cal-day--empty {
     cursor: default;
+  }
+
+  .cal-day--past {
+    cursor: default;
+    opacity: 0.3;
   }
 
   .cal-day:focus-visible {
@@ -120,11 +161,12 @@ const { cells, monthLabel, weekdayLabels } = calendar;
 
   .cal-day__job-dot {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     flex: none;
-    margin-right: 4px;
+    margin-right: 5px;
     border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
   }
 
   .cal-day__job-dot--pendiente {
