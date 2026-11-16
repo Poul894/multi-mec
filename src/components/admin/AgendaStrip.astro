@@ -1,0 +1,279 @@
+---
+import StatusTag from './StatusTag.astro';
+import type { Job } from '../../lib/jobs';
+
+interface Props {
+  jobs: Job[];
+}
+
+const { jobs } = Astro.props;
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const toKey = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const dias = Array.from({ length: 8 }, (_, i) => {
+  const date = new Date(today);
+  date.setDate(date.getDate() + i);
+  const key = toKey(date);
+  return {
+    key,
+    label: date.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }),
+    jobs: jobs.filter((job) => job.fecha_entrega === key),
+  };
+});
+
+const [hoy, ...proximos] = dias;
+const hoyLabelLargo = today.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+---
+
+<div class="agenda">
+  <div class="admin-chart-panel agenda__today">
+    <div class="agenda__today-head">
+      <div>
+        <p class="admin-eyebrow">Hoy</p>
+        <h2 class="agenda__today-date">{hoyLabelLargo}</h2>
+      </div>
+      <a class="btn btn--primary btn--sm" href={`/admin/trabajos/nuevo?fecha=${hoy.key}`}>+ Nuevo para hoy</a>
+    </div>
+
+    {
+      hoy.jobs.length === 0 ? (
+        <p class="admin-empty">No tenés trabajos con entrega hoy.</p>
+      ) : (
+        <ul class="agenda__today-list">
+          {hoy.jobs.map((job) => (
+            <li>
+              <a href={`/admin/trabajos/${job.id}`}>
+                <StatusTag estado={job.estado} />
+                <span>{job.titulo}</span>
+                {job.cliente_nombre && <span class="agenda__client">{job.cliente_nombre}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  <div class="agenda__week">
+    <div class="agenda__week-head">
+      <p class="admin-eyebrow">Próximos días</p>
+      <a class="agenda__week-link" href="/admin/calendario">Ver calendario completo</a>
+    </div>
+    <ul class="agenda__days">
+      {
+        proximos.map((dia) => (
+          <li class="agenda__day" data-agenda-day>
+            <button type="button" class="agenda__day-row" data-agenda-toggle aria-expanded="false">
+              <span class="agenda__day-label">{dia.label}</span>
+              <span class="agenda__day-count">
+                {dia.jobs.length} {dia.jobs.length === 1 ? 'trabajo' : 'trabajos'}
+              </span>
+            </button>
+            <a class="agenda__day-add" href={`/admin/trabajos/nuevo?fecha=${dia.key}`} aria-label={`Nuevo trabajo para ${dia.label}`}>
+              +
+            </a>
+            <div class="agenda__day-detail" data-agenda-detail hidden>
+              {dia.jobs.length === 0 ? (
+                <p class="agenda__day-empty">Sin trabajos este día.</p>
+              ) : (
+                <ul>
+                  {dia.jobs.map((job) => (
+                    <li>
+                      <a href={`/admin/trabajos/${job.id}`}>
+                        <StatusTag estado={job.estado} />
+                        {job.titulo}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-agenda-day]').forEach((day) => {
+    const toggle = day.querySelector<HTMLButtonElement>('[data-agenda-toggle]');
+    const detail = day.querySelector<HTMLElement>('[data-agenda-detail]');
+    toggle?.addEventListener('click', () => {
+      if (!detail) return;
+      detail.hidden = !detail.hidden;
+      toggle.setAttribute('aria-expanded', String(!detail.hidden));
+    });
+  });
+</script>
+
+<style>
+  .agenda {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+    margin-bottom: 36px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .agenda {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .agenda__today-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .agenda__today-date {
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    text-transform: capitalize;
+  }
+
+  .agenda__today-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+  }
+
+  .agenda__today-list li {
+    background: var(--graphite);
+  }
+
+  .agenda__today-list a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .agenda__today-list a:hover {
+    color: var(--blue-2);
+  }
+
+  .agenda__client {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--muted-2);
+  }
+
+  .agenda__week-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .agenda__week-link {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blue-2);
+  }
+
+  .agenda__days {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .agenda__day {
+    position: relative;
+    background: var(--graphite);
+  }
+
+  .agenda__day-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 42px 12px 14px;
+    border: 0;
+    background: none;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.82rem;
+  }
+
+  .agenda__day-row:hover {
+    color: var(--white);
+    background: var(--graphite-2);
+  }
+
+  .agenda__day-label {
+    text-transform: capitalize;
+  }
+
+  .agenda__day-count {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: var(--muted-2);
+  }
+
+  .agenda__day-add {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    color: var(--blue-2);
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .agenda__day-add:hover {
+    border-color: var(--blue-2);
+    background: rgba(61, 124, 245, 0.08);
+  }
+
+  .agenda__day-detail {
+    padding: 0 14px 12px;
+  }
+
+  .agenda__day-detail ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .agenda__day-detail a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .agenda__day-detail a:hover {
+    color: var(--blue-2);
+  }
+
+  .agenda__day-empty {
+    font-size: 0.78rem;
+    color: var(--muted-2);
+  }
+</style>

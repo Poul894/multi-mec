@@ -3,6 +3,8 @@ export const prerender = false;
 
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import JobForm from '../../../components/admin/JobForm.astro';
+
+const prefillFechaEntrega = Astro.url.searchParams.get('fecha');
 ---
 
 <AdminLayout title="Nuevo trabajo">
@@ -13,5 +15,5 @@ import JobForm from '../../../components/admin/JobForm.astro';
     </div>
   </div>
 
-  <JobForm />
+  <JobForm prefillFechaEntrega={prefillFechaEntrega} />
 </AdminLayout>

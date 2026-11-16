@@ -4,9 +4,11 @@ import type { Job, JobStatus } from '../../lib/jobs';
 
 interface Props {
   job?: Job;
+  /** Precarga la fecha de entrega al crear (p.ej. desde la agenda del dashboard). */
+  prefillFechaEntrega?: string | null;
 }
 
-const { job } = Astro.props;
+const { job, prefillFechaEntrega } = Astro.props;
 const hoy = new Date().toISOString().slice(0, 10);
 const ESTADOS: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado'];
 ---
@@ -56,7 +58,13 @@ const ESTADOS: JobStatus[] = ['pendiente', 'en_curso', 'terminado', 'entregado']
 
     <div class="field">
       <label for="fecha_entrega">Fecha de entrega<span class="req">*</span></label>
-      <input id="fecha_entrega" name="fecha_entrega" type="date" required value={job?.fecha_entrega ?? ''} />
+      <input
+        id="fecha_entrega"
+        name="fecha_entrega"
+        type="date"
+        required
+        value={job?.fecha_entrega ?? prefillFechaEntrega ?? ''}
+      />
     </div>
 
     <div class="field field--full">

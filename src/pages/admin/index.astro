@@ -4,25 +4,15 @@ export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import JobCard from '../../components/admin/JobCard.astro';
 import JobQuickCreateDialog from '../../components/admin/JobQuickCreateDialog.astro';
-import MonthCalendar from '../../components/admin/MonthCalendar.astro';
-import UpcomingPanel from '../../components/admin/UpcomingPanel.astro';
-import { listJobs, diasRestantes, urgenciaDe } from '../../lib/jobs';
-import { buildMonthCalendar, resolveMes } from '../../lib/calendar';
+import AgendaStrip from '../../components/admin/AgendaStrip.astro';
+import { listJobs, urgenciaDe } from '../../lib/jobs';
 
 const allJobs = await listJobs(Astro.locals.supabase, { orderBy: 'updated_at' });
-
-const { year, month } = resolveMes(Astro.url.searchParams.get('mes'));
-const calendar = buildMonthCalendar(allJobs, year, month);
 
 const pendientes = allJobs.filter((job) => job.estado === 'pendiente').length;
 const enProceso = allJobs.filter((job) => job.estado === 'en_curso').length;
 const terminados = allJobs.filter((job) => job.estado === 'terminado').length;
 const entregasProximas = allJobs.filter((job) => urgenciaDe(job) === 'urgente').length;
-
-const proximasEntregas = [...allJobs]
-  .filter((job) => job.estado !== 'entregado')
-  .sort((a, b) => diasRestantes(a.fecha_entrega) - diasRestantes(b.fecha_entrega))
-  .slice(0, 6);
 
 const recientes = allJobs.slice(0, 12);
 
@@ -65,15 +55,7 @@ const fechaHoy = new Date().toLocaleDateString('es-AR', {
     </div>
   </div>
 
-  <div class="dashboard-calendar-row">
-    <MonthCalendar
-      calendar={calendar}
-      prevHref={`/admin?mes=${calendar.prevMes}`}
-      nextHref={`/admin?mes=${calendar.nextMes}`}
-      hidePast
-    />
-    <UpcomingPanel jobs={proximasEntregas} />
-  </div>
+  <AgendaStrip jobs={allJobs} />
 
   <div class="admin-page-head admin-page-head--spaced">
     <div>
