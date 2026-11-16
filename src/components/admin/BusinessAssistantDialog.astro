@@ -1,0 +1,252 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { IconName } from '../ui/Icon.astro';
+import { listJobs, diasRestantes } from '../../lib/jobs';
+import { listQuotes } from '../../lib/quotes';
+
+const supabase = Astro.locals.supabase;
+const [jobs, quotes] = await Promise.all([listJobs(supabase), listQuotes(supabase)]);
+
+const hace30Dias = new Date();
+hace30Dias.setDate(hace30Dias.getDate() - 30);
+
+const vencidos = jobs.filter((job) => job.estado !== 'entregado' && diasRestantes(job.fecha_entrega) < 0);
+const terminadosSinEntregar = jobs.filter((job) => job.estado === 'terminado');
+const presupuestosPendientes = quotes.filter((quote) => quote.estado === 'enviado');
+const presupuestosRecientes = quotes.filter((quote) => new Date(quote.created_at) >= hace30Dias);
+
+const plural = (n: number, singular: string, pluralForm: string) => (n === 1 ? singular : pluralForm);
+
+interface Tarea {
+  icon: IconName;
+  texto: string;
+}
+
+const tareas: Tarea[] = [];
+
+if (vencidos.length > 0) {
+  tareas.push({
+    icon: 'alert',
+    texto: `Tenés ${vencidos.length} ${plural(vencidos.length, 'trabajo atrasado', 'trabajos atrasados')}. Coordiná la entrega lo antes posible.`,
+  });
+}
+if (terminadosSinEntregar.length > 0) {
+  tareas.push({
+    icon: 'shaft',
+    texto: `${terminadosSinEntregar.length} ${plural(terminadosSinEntregar.length, 'trabajo está terminado', 'trabajos están terminados')} esperando que los entregues.`,
+  });
+}
+if (presupuestosPendientes.length > 0) {
+  tareas.push({
+    icon: 'quote',
+    texto: `Tenés ${presupuestosPendientes.length} ${plural(presupuestosPendientes.length, 'presupuesto enviado', 'presupuestos enviados')} sin respuesta. Hacé seguimiento por WhatsApp.`,
+  });
+}
+if (presupuestosRecientes.length === 0) {
+  tareas.push({
+    icon: 'quote',
+    texto: 'No armaste presupuestos nuevos en los últimos 30 días. Si tenés consultas de clientes, cotizalas desde "Presupuestos".',
+  });
+}
+if (jobs.length === 0) {
+  tareas.push({
+    icon: 'upload',
+    texto: 'Todavía no cargaste ningún trabajo. Arrancá con el botón "Cargar nuevo trabajo" del dashboard.',
+  });
+}
+if (tareas.length === 0) {
+  tareas.push({ icon: 'check', texto: 'No hay alertas pendientes: el taller está al día.' });
+}
+
+const guia: { tab: string; icon: IconName; texto: string }[] = [
+  {
+    tab: 'Trabajos',
+    icon: 'shaft',
+    texto: 'Cargá cada pieza con foto, cliente y fechas, y pasala de Pendiente a En proceso, Terminado y Entregado.',
+  },
+  {
+    tab: 'Presupuestos',
+    icon: 'quote',
+    texto: 'Armá un presupuesto con la foto de la muestra o el plano y mandalo por WhatsApp. Si el cliente lo acepta, el trabajo se crea solo.',
+  },
+  {
+    tab: 'Calendario',
+    icon: 'calendar',
+    texto: 'Mirá de un vistazo qué se entrega cada día: rojo es "quedan 2 días o menos", verde es "todavía hay margen".',
+  },
+  {
+    tab: 'Estadísticas',
+    icon: 'chart',
+    texto: 'Cuántos trabajos entregaste por día, semana, quincena o mes, y cuánto facturaste si activaste mostrar el capital.',
+  },
+  {
+    tab: 'Config',
+    icon: 'pulley',
+    texto: 'Mostrar u ocultar el capital generado en las estadísticas.',
+  },
+];
+---
+
+<button type="button" class="btn btn--outline btn--sm admin-header__assistant" data-assistant-open>
+  <Icon name="quality" size={16} />
+  Asistente
+</button>
+
+<dialog class="assistant-dialog" data-assistant-dialog aria-label="Asistente del negocio">
+  <button type="button" class="assistant-dialog__close" data-assistant-close aria-label="Cerrar">
+    <Icon name="close" size={16} />
+  </button>
+
+  <div class="quote-panel">
+    <div class="quote-panel__head">
+      <h3>Asistente del negocio</h3>
+      <span>Multi Mec</span>
+    </div>
+
+    <p class="assistant-section-title">Objetivos de hoy</p>
+    <ul class="assistant-tasks">
+      {
+        tareas.map((tarea) => (
+          <li>
+            <Icon name={tarea.icon} size={16} />
+            <span>{tarea.texto}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="assistant-section-title">Qué podés hacer en cada pestaña</p>
+    <ul class="assistant-guide">
+      {
+        guia.map((item) => (
+          <li>
+            <Icon name={item.icon} size={16} />
+            <div>
+              <strong>{item.tab}</strong>
+              <p>{item.texto}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-assistant-dialog]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-assistant-open]');
+  const closeBtn = dialog?.querySelector<HTMLButtonElement>('[data-assistant-close]');
+
+  openBtn?.addEventListener('click', () => dialog?.showModal());
+  closeBtn?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+</script>
+
+<style>
+  .assistant-dialog {
+    position: relative;
+    width: min(620px, 94vw);
+    max-height: 86vh;
+    margin: 6vh auto auto;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: transparent;
+    overflow-y: auto;
+  }
+
+  .assistant-dialog::backdrop {
+    background: rgba(4, 5, 6, 0.88);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .assistant-dialog__close {
+    position: absolute;
+    top: clamp(20px, 3vw, 32px);
+    right: clamp(20px, 3vw, 32px);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(7, 8, 10, 0.24);
+    border-radius: 1px;
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .assistant-dialog__close:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  .assistant-section-title {
+    margin-top: 22px;
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #737b80;
+  }
+
+  .assistant-section-title:first-of-type {
+    margin-top: 0;
+  }
+
+  .assistant-tasks,
+  .assistant-guide {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .assistant-tasks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(7, 8, 10, 0.14);
+    border-radius: 2px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .assistant-tasks li svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--orange);
+  }
+
+  .assistant-guide li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(7, 8, 10, 0.1);
+  }
+
+  .assistant-guide li svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--orange);
+  }
+
+  .assistant-guide strong {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+
+  .assistant-guide p {
+    margin-top: 2px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #5a6267;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
 import Icon from '../ui/Icon.astro';
 import type { IconName } from '../ui/Icon.astro';
+import BusinessAssistantDialog from './BusinessAssistantDialog.astro';
 
 const navItems: { href: string; label: string; icon: IconName }[] = [
   { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
@@ -35,6 +36,7 @@ const isLoggedIn = Boolean(Astro.locals.user);
             );
           })}
         </nav>
+        <BusinessAssistantDialog />
         <form method="POST" action="/api/admin/logout">
           <button type="submit" class="admin-nav__link admin-header__logout" aria-label="Cerrar sesión">
             <Icon name="logout" size={16} />

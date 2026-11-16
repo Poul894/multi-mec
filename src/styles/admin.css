@@ -88,6 +88,10 @@
   background: rgba(61, 124, 245, 0.08);
 }
 
+.admin-header__assistant {
+  flex: none;
+}
+
 .admin-header__logout {
   flex: none;
   color: var(--muted);
