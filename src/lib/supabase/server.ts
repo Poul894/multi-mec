@@ -29,6 +29,17 @@ export function createSupabaseAnonClient() {
 }
 
 /**
+ * Cliente con la `service_role` key: bypassa RLS por completo. Usar SOLO en
+ * rutas que no tienen sesión de usuario (el cron de notificaciones, que lo
+ * dispara Vercel, no un login) y que ya están protegidas por su cuenta
+ * (p.ej. verificando `CRON_SECRET`). Nunca exponer esta key al navegador.
+ */
+export function createSupabaseServiceClient() {
+  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  return createClient(SUPABASE_URL, serviceKey);
+}
+
+/**
  * Cliente de Supabase para usar en páginas/endpoints server-side (Astro.locals,
  * middleware, API routes). Lee las cookies de la request y, si Supabase
  * necesita refrescar la sesión, las vuelve a escribir vía `Astro.cookies`.
