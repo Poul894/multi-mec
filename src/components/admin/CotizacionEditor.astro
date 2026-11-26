@@ -1,0 +1,951 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Cotizacion, CotizacionEstado } from '../../lib/cotizaciones';
+import { COTIZACION_ESTADO_LABEL } from '../../lib/cotizaciones';
+import { site } from '../../data/site';
+
+interface Props {
+  id: string;
+  numero: string;
+  cotizacion?: Cotizacion | null;
+}
+
+const { id, numero, cotizacion = null } = Astro.props;
+const isNew = !cotizacion;
+const fecha = cotizacion?.fecha ?? new Date().toISOString().slice(0, 10);
+
+const initial = {
+  id,
+  numero,
+  fecha,
+  isNew,
+  tagline: site.tagline,
+  cliente_nombre: cotizacion?.cliente_nombre ?? '',
+  cliente_cuit: cotizacion?.cliente_cuit ?? '',
+  cliente_direccion: cotizacion?.cliente_direccion ?? '',
+  cliente_localidad: cotizacion?.cliente_localidad ?? '',
+  cliente_telefono: cotizacion?.cliente_telefono ?? '',
+  cliente_email: cotizacion?.cliente_email ?? '',
+  items:
+    cotizacion?.items && cotizacion.items.length > 0
+      ? cotizacion.items
+      : [{ descripcion: '', cantidad: 1, tiempo_estimado: '', precio_unitario: 0 }],
+  descuento_pct: cotizacion?.descuento_pct ?? 0,
+  aplica_iva: cotizacion?.aplica_iva ?? false,
+  iva_pct: cotizacion?.iva_pct ?? 21,
+  validez_dias: cotizacion?.validez_dias ?? 30,
+  plazo_entrega: cotizacion?.plazo_entrega ?? 'A coordinar',
+  forma_pago: cotizacion?.forma_pago ?? 'Efectivo o transferencia',
+  comprobante: cotizacion?.comprobante ?? 'Factura C',
+  observaciones: cotizacion?.observaciones ?? '',
+  entrega_activa: Boolean(cotizacion && (cotizacion.entrega_nombre || cotizacion.entrega_direccion)),
+  entrega_nombre: cotizacion?.entrega_nombre ?? '',
+  entrega_documento: cotizacion?.entrega_documento ?? '',
+  entrega_direccion: cotizacion?.entrega_direccion ?? '',
+  entrega_localidad: cotizacion?.entrega_localidad ?? '',
+  entrega_provincia: cotizacion?.entrega_provincia ?? '',
+  entrega_cp: cotizacion?.entrega_cp ?? '',
+  entrega_telefono: cotizacion?.entrega_telefono ?? '',
+  estado: cotizacion?.estado ?? ('borrador' as CotizacionEstado),
+};
+
+const estadoOptions: CotizacionEstado[] = ['borrador', 'enviado', 'aprobado', 'rechazado'];
+---
+
+<div class="cot-editor" data-cot-editor>
+  <div class="cot-editor__toggle" data-cot-toggle>
+    <button type="button" class="btn btn--outline btn--sm" data-cot-view="form" aria-pressed="true">
+      Formulario
+    </button>
+    <button type="button" class="btn btn--outline btn--sm" data-cot-view="preview" aria-pressed="false">
+      Vista previa
+    </button>
+  </div>
+
+  <p class="form__status" data-cot-status></p>
+
+  <div class="cot-editor__grid">
+    <div class="cot-editor__pane is-active" data-cot-pane="form">
+      <form class="form" data-cot-form>
+        <div class="cot-meta">
+          <span>N° <strong data-cot-meta-numero></strong></span>
+          <span>Fecha <strong data-cot-meta-fecha></strong></span>
+        </div>
+
+        <fieldset class="cot-section">
+          <legend>Datos del cliente</legend>
+          <div class="form-grid">
+            <div class="field field--full">
+              <label for="cot_cliente_nombre">Nombre o razón social<span class="req">*</span></label>
+              <input id="cot_cliente_nombre" data-f="cliente_nombre" type="text" required />
+            </div>
+            <div class="field">
+              <label for="cot_cliente_cuit">CUIT / DNI</label>
+              <input id="cot_cliente_cuit" data-f="cliente_cuit" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_cliente_telefono">Teléfono</label>
+              <input id="cot_cliente_telefono" data-f="cliente_telefono" type="tel" />
+            </div>
+            <div class="field">
+              <label for="cot_cliente_direccion">Dirección</label>
+              <input id="cot_cliente_direccion" data-f="cliente_direccion" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_cliente_localidad">Localidad</label>
+              <input id="cot_cliente_localidad" data-f="cliente_localidad" type="text" />
+            </div>
+            <div class="field field--full">
+              <label for="cot_cliente_email">Correo electrónico</label>
+              <input id="cot_cliente_email" data-f="cliente_email" type="email" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="cot-section">
+          <legend>Detalle de los trabajos</legend>
+          <div class="cot-items" data-cot-items></div>
+          <button type="button" class="btn btn--outline btn--sm" data-cot-add-item>
+            <Icon name="plus" size={14} /> Agregar trabajo
+          </button>
+        </fieldset>
+
+        <fieldset class="cot-section">
+          <legend>Descuentos e IVA</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="cot_descuento">Descuento (%)</label>
+              <input id="cot_descuento" data-f="descuento_pct" type="number" min="0" max="100" step="0.5" />
+            </div>
+            <div class="field">
+              <label class="checkbox">
+                <input data-f="aplica_iva" type="checkbox" />
+                Discriminar IVA
+              </label>
+            </div>
+            <div class="field">
+              <label for="cot_iva_pct">IVA (%)</label>
+              <input id="cot_iva_pct" data-f="iva_pct" type="number" min="0" max="100" step="0.5" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="cot-section">
+          <legend>Condiciones comerciales</legend>
+          <div class="form-grid">
+            <div class="field">
+              <label for="cot_validez">Validez de la cotización (días)</label>
+              <input id="cot_validez" data-f="validez_dias" type="number" min="1" />
+            </div>
+            <div class="field">
+              <label for="cot_plazo">Plazo de entrega</label>
+              <input id="cot_plazo" data-f="plazo_entrega" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_forma_pago">Forma de pago</label>
+              <input id="cot_forma_pago" data-f="forma_pago" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_comprobante">Comprobante</label>
+              <input id="cot_comprobante" data-f="comprobante" type="text" />
+            </div>
+            <div class="field field--full">
+              <label for="cot_observaciones">Observaciones generales</label>
+              <textarea id="cot_observaciones" data-f="observaciones"></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="cot-section">
+          <legend>
+            <label class="checkbox">
+              <input type="checkbox" data-cot-entrega-toggle />
+              Agregar datos de entrega (opcional)
+            </label>
+          </legend>
+          <div class="form-grid" data-cot-entrega-fields hidden>
+            <div class="field field--full">
+              <label for="cot_entrega_nombre">Nombre del destinatario</label>
+              <input id="cot_entrega_nombre" data-f="entrega_nombre" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_documento">DNI / CUIT</label>
+              <input id="cot_entrega_documento" data-f="entrega_documento" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_telefono">Teléfono</label>
+              <input id="cot_entrega_telefono" data-f="entrega_telefono" type="tel" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_direccion">Dirección</label>
+              <input id="cot_entrega_direccion" data-f="entrega_direccion" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_localidad">Localidad</label>
+              <input id="cot_entrega_localidad" data-f="entrega_localidad" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_provincia">Provincia</label>
+              <input id="cot_entrega_provincia" data-f="entrega_provincia" type="text" />
+            </div>
+            <div class="field">
+              <label for="cot_entrega_cp">Código postal</label>
+              <input id="cot_entrega_cp" data-f="entrega_cp" type="text" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="cot-section">
+          <legend>Estado</legend>
+          <div class="field">
+            <label for="cot_estado">Seguimiento</label>
+            <select id="cot_estado" data-f="estado">
+              {estadoOptions.map((opt) => <option value={opt}>{COTIZACION_ESTADO_LABEL[opt]}</option>)}
+            </select>
+            <p class="field__hint">Quedá guardado para volver a buscarlo cuando el cliente lo apruebe.</p>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+    <div class="cot-editor__pane" data-cot-pane="preview">
+      <div class="cot-preview" data-cot-preview></div>
+
+      <div class="form__actions cot-editor__actions">
+        <button type="button" class="btn btn--primary" data-cot-save>Guardar presupuesto</button>
+        <button type="button" class="btn btn--outline" data-cot-pdf>Descargar PDF</button>
+        <button type="button" class="btn btn--outline" data-cot-print>Imprimir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" data-cot-initial set:html={JSON.stringify(initial)} />
+
+<script>
+  import { requireBrowserSession } from '../../lib/supabase/browser';
+  import {
+    calcularTotales,
+    itemSubtotal,
+    upsertCotizacion,
+    type CotizacionItem,
+    type CotizacionInput,
+  } from '../../lib/cotizaciones';
+  import { buildCotizacionPdf } from '../../lib/cotizacion-pdf';
+  import { loadImageDataUrl } from '../../lib/pdf-assets';
+  import { LETTERHEAD } from '../../lib/letterhead';
+
+  const root = document.querySelector<HTMLElement>('[data-cot-editor]');
+  const form = root?.querySelector<HTMLFormElement>('[data-cot-form]');
+  const itemsContainer = root?.querySelector<HTMLElement>('[data-cot-items]');
+  const previewEl = root?.querySelector<HTMLElement>('[data-cot-preview]');
+  const statusEl = root?.querySelector<HTMLElement>('[data-cot-status]');
+  const entregaToggle = root?.querySelector<HTMLInputElement>('[data-cot-entrega-toggle]');
+  const entregaFields = root?.querySelector<HTMLElement>('[data-cot-entrega-fields]');
+  const metaNumero = root?.querySelector<HTMLElement>('[data-cot-meta-numero]');
+  const metaFecha = root?.querySelector<HTMLElement>('[data-cot-meta-fecha]');
+
+  const initialDataEl = document.querySelector<HTMLScriptElement>('[data-cot-initial]');
+  const initialData = initialDataEl ? JSON.parse(initialDataEl.textContent ?? '{}') : {};
+
+  const recordId: string = initialData.id;
+  const numero: string = initialData.numero;
+  const fecha: string = initialData.fecha;
+  const tagline: string = initialData.tagline ?? '';
+
+  function esc(value: unknown): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function money(n: number): string {
+    return n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
+  }
+
+  function fechaLegible(iso: string): string {
+    if (!iso) return '';
+    return new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  if (metaNumero) metaNumero.textContent = numero;
+  if (metaFecha) metaFecha.textContent = fechaLegible(fecha);
+
+  function setStatus(message: string, isError = false) {
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.classList.toggle('is-visible', Boolean(message));
+    statusEl.classList.toggle('form__status--error', isError);
+  }
+
+  function setFieldValue(name: string, value: unknown) {
+    const el = form?.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[data-f="${name}"]`);
+    if (!el) return;
+    if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+      el.checked = Boolean(value);
+    } else {
+      el.value = value === null || value === undefined ? '' : String(value);
+    }
+  }
+
+  function getFieldValue(name: string): string {
+    const el = form?.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(`[data-f="${name}"]`);
+    if (!el) return '';
+    if (el instanceof HTMLInputElement && el.type === 'checkbox') return el.checked ? 'true' : '';
+    return el.value;
+  }
+
+  // ---- Ítems: filas dinámicas ----
+  function itemRowHtml(item: CotizacionItem): string {
+    return `
+      <div class="cot-item-row" data-cot-item-row>
+        <div class="field field--full">
+          <label>Descripción del trabajo</label>
+          <textarea rows="2" data-f="descripcion">${esc(item.descripcion)}</textarea>
+        </div>
+        <div class="cot-item-row__grid">
+          <div class="field">
+            <label>Cantidad</label>
+            <input type="number" min="0" step="1" data-f="cantidad" value="${esc(item.cantidad ?? 1)}" />
+          </div>
+          <div class="field">
+            <label>Tiempo estimado</label>
+            <input type="text" placeholder="Ej: 3 días" data-f="tiempo_estimado" value="${esc(item.tiempo_estimado)}" />
+          </div>
+          <div class="field">
+            <label>Precio unitario</label>
+            <input type="number" min="0" step="0.01" data-f="precio_unitario" value="${esc(item.precio_unitario ?? 0)}" />
+          </div>
+          <div class="field">
+            <label>Subtotal</label>
+            <output data-cot-item-subtotal>${esc(money(itemSubtotal(item)))}</output>
+          </div>
+        </div>
+        <button type="button" class="btn btn--quiet cot-item-row__remove" data-cot-item-remove>Quitar trabajo</button>
+      </div>
+    `;
+  }
+
+  function addItemRow(item: CotizacionItem = { descripcion: '', cantidad: 1, tiempo_estimado: '', precio_unitario: 0 }) {
+    if (!itemsContainer) return;
+    itemsContainer.insertAdjacentHTML('beforeend', itemRowHtml(item));
+  }
+
+  function readItems(): CotizacionItem[] {
+    const rows = itemsContainer?.querySelectorAll<HTMLElement>('[data-cot-item-row]') ?? [];
+    return Array.from(rows).map((row) => ({
+      descripcion: row.querySelector<HTMLTextAreaElement>('[data-f="descripcion"]')?.value.trim() ?? '',
+      cantidad: Number(row.querySelector<HTMLInputElement>('[data-f="cantidad"]')?.value ?? 0) || 0,
+      tiempo_estimado: row.querySelector<HTMLInputElement>('[data-f="tiempo_estimado"]')?.value.trim() ?? '',
+      precio_unitario: Number(row.querySelector<HTMLInputElement>('[data-f="precio_unitario"]')?.value ?? 0) || 0,
+    }));
+  }
+
+  function updateItemSubtotals() {
+    const rows = itemsContainer?.querySelectorAll<HTMLElement>('[data-cot-item-row]') ?? [];
+    rows.forEach((row) => {
+      const cantidad = Number(row.querySelector<HTMLInputElement>('[data-f="cantidad"]')?.value ?? 0) || 0;
+      const precio = Number(row.querySelector<HTMLInputElement>('[data-f="precio_unitario"]')?.value ?? 0) || 0;
+      const out = row.querySelector<HTMLOutputElement>('[data-cot-item-subtotal]');
+      if (out) out.textContent = money(itemSubtotal({ cantidad, precio_unitario: precio }));
+    });
+  }
+
+  itemsContainer?.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-cot-item-remove]')) {
+      target.closest('[data-cot-item-row]')?.remove();
+      renderPreview();
+    }
+  });
+
+  root?.querySelector('[data-cot-add-item]')?.addEventListener('click', () => {
+    addItemRow();
+    renderPreview();
+  });
+
+  entregaToggle?.addEventListener('change', () => {
+    if (entregaFields) entregaFields.hidden = !entregaToggle.checked;
+    renderPreview();
+  });
+
+  // ---- Modelo completo leído desde el DOM ----
+  function readModel() {
+    return {
+      cliente: {
+        nombre: getFieldValue('cliente_nombre'),
+        cuit: getFieldValue('cliente_cuit'),
+        direccion: getFieldValue('cliente_direccion'),
+        localidad: getFieldValue('cliente_localidad'),
+        telefono: getFieldValue('cliente_telefono'),
+        email: getFieldValue('cliente_email'),
+      },
+      items: readItems(),
+      descuentoPct: Number(getFieldValue('descuento_pct')) || 0,
+      aplicaIva: Boolean(getFieldValue('aplica_iva')),
+      ivaPct: Number(getFieldValue('iva_pct')) || 0,
+      condiciones: {
+        validezDias: Number(getFieldValue('validez_dias')) || 0,
+        plazoEntrega: getFieldValue('plazo_entrega'),
+        formaPago: getFieldValue('forma_pago'),
+        comprobante: getFieldValue('comprobante'),
+        observaciones: getFieldValue('observaciones'),
+      },
+      entregaActiva: Boolean(entregaToggle?.checked),
+      entrega: {
+        nombre: getFieldValue('entrega_nombre'),
+        documento: getFieldValue('entrega_documento'),
+        direccion: getFieldValue('entrega_direccion'),
+        localidad: getFieldValue('entrega_localidad'),
+        provincia: getFieldValue('entrega_provincia'),
+        cp: getFieldValue('entrega_cp'),
+        telefono: getFieldValue('entrega_telefono'),
+      },
+      estado: getFieldValue('estado') || 'borrador',
+    };
+  }
+
+  // ---- Vista previa en vivo (HTML, estilo industrial negro/naranja) ----
+  function renderPreview() {
+    if (!previewEl) return;
+    updateItemSubtotals();
+    const model = readModel();
+    const totales = calcularTotales(model.items, model.descuentoPct, model.aplicaIva, model.ivaPct);
+
+    const filas = model.items
+      .map(
+        (item, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${esc(item.descripcion) || '-'}</td>
+          <td>${esc(item.cantidad)}</td>
+          <td>${esc(item.tiempo_estimado) || '-'}</td>
+          <td>${esc(money(item.precio_unitario))}</td>
+          <td>${esc(money(itemSubtotal(item)))}</td>
+        </tr>`,
+      )
+      .join('');
+
+    const clienteLineas = [
+      model.cliente.nombre || 'Sin nombre cargado',
+      [model.cliente.cuit && `CUIT/DNI: ${model.cliente.cuit}`, model.cliente.telefono && `Tel: ${model.cliente.telefono}`]
+        .filter(Boolean)
+        .join(' &nbsp;·&nbsp; '),
+      [model.cliente.direccion, model.cliente.localidad].filter(Boolean).join(', '),
+      model.cliente.email,
+    ].filter(Boolean);
+
+    const entregaHtml = model.entregaActiva
+      ? `
+      <div class="cot-preview__block">
+        <h4>Datos de entrega</h4>
+        ${[
+          model.entrega.nombre,
+          model.entrega.documento && `DNI/CUIT: ${model.entrega.documento}`,
+          [model.entrega.direccion, model.entrega.localidad, model.entrega.provincia].filter(Boolean).join(', '),
+          model.entrega.cp && `CP: ${model.entrega.cp}`,
+          model.entrega.telefono && `Tel: ${model.entrega.telefono}`,
+        ]
+          .filter(Boolean)
+          .map((l) => `<p>${esc(l)}</p>`)
+          .join('')}
+      </div>`
+      : '';
+
+    previewEl.innerHTML = `
+      <div class="cot-preview__header">
+        <div class="cot-preview__brand">
+          <img src="/icon-512.png" alt="" class="cot-preview__logo" />
+          <div>
+            <strong>MULTI MEC</strong>
+            <span>${esc(tagline)}</span>
+          </div>
+        </div>
+        <div class="cot-preview__doc">
+          <strong>COTIZACIÓN</strong>
+          <span>N°: ${esc(numero)}</span>
+          <span>Fecha: ${esc(fechaLegible(fecha))}</span>
+        </div>
+      </div>
+      <div class="cot-preview__rule"></div>
+      <div class="cot-preview__block">
+        <h4>Señor(es)</h4>
+        ${clienteLineas.map((l) => `<p>${l}</p>`).join('')}
+      </div>
+      <table class="cot-preview__table">
+        <thead>
+          <tr><th>Ítem</th><th>Descripción</th><th>Cant.</th><th>Tiempo est.</th><th>P. Unitario</th><th>P. Total</th></tr>
+        </thead>
+        <tbody>${filas || '<tr><td colspan="6" class="cot-preview__empty">Agregá un trabajo para verlo acá.</td></tr>'}</tbody>
+      </table>
+      <div class="cot-preview__totales">
+        <p>Subtotal: ${esc(money(totales.subtotal))}</p>
+        ${model.descuentoPct > 0 ? `<p>Descuento (${esc(model.descuentoPct)}%): -${esc(money(totales.descuentoMonto))}</p>` : ''}
+        ${model.aplicaIva ? `<p>IVA (${esc(model.ivaPct)}%): ${esc(money(totales.ivaMonto))}</p>` : ''}
+        <p class="cot-preview__total">TOTAL: ${esc(money(totales.total))}</p>
+      </div>
+      <div class="cot-preview__block">
+        <h4>Condiciones comerciales</h4>
+        <p>Validez de la cotización: ${esc(model.condiciones.validezDias)} días</p>
+        <p>Plazo de entrega: ${esc(model.condiciones.plazoEntrega)}</p>
+        <p>Forma de pago: ${esc(model.condiciones.formaPago)}</p>
+        <p>Comprobante: ${esc(model.condiciones.comprobante)}</p>
+        ${model.condiciones.observaciones ? `<p>Observaciones: ${esc(model.condiciones.observaciones)}</p>` : ''}
+      </div>
+      ${entregaHtml}
+      <div class="cot-preview__firma">
+        <div><span></span><label>Firma</label></div>
+        <div><span></span><label>Aclaración</label></div>
+      </div>
+      <div class="cot-preview__footer">
+        <p>${esc(LETTERHEAD.responsable)} · ${esc(LETTERHEAD.rubro)}</p>
+        <p>WhatsApp ${esc(LETTERHEAD.whatsapp)} · ${esc(LETTERHEAD.direccion)}</p>
+      </div>
+    `;
+  }
+
+  form?.addEventListener('input', () => renderPreview());
+  form?.addEventListener('change', () => renderPreview());
+
+  // ---- Carga inicial de datos (desde el JSON embebido) ----
+  (function hydrate() {
+    setFieldValue('cliente_nombre', initialData.cliente_nombre);
+    setFieldValue('cliente_cuit', initialData.cliente_cuit);
+    setFieldValue('cliente_direccion', initialData.cliente_direccion);
+    setFieldValue('cliente_localidad', initialData.cliente_localidad);
+    setFieldValue('cliente_telefono', initialData.cliente_telefono);
+    setFieldValue('cliente_email', initialData.cliente_email);
+    setFieldValue('descuento_pct', initialData.descuento_pct);
+    setFieldValue('aplica_iva', initialData.aplica_iva);
+    setFieldValue('iva_pct', initialData.iva_pct);
+    setFieldValue('validez_dias', initialData.validez_dias);
+    setFieldValue('plazo_entrega', initialData.plazo_entrega);
+    setFieldValue('forma_pago', initialData.forma_pago);
+    setFieldValue('comprobante', initialData.comprobante);
+    setFieldValue('observaciones', initialData.observaciones);
+    setFieldValue('entrega_nombre', initialData.entrega_nombre);
+    setFieldValue('entrega_documento', initialData.entrega_documento);
+    setFieldValue('entrega_direccion', initialData.entrega_direccion);
+    setFieldValue('entrega_localidad', initialData.entrega_localidad);
+    setFieldValue('entrega_provincia', initialData.entrega_provincia);
+    setFieldValue('entrega_cp', initialData.entrega_cp);
+    setFieldValue('entrega_telefono', initialData.entrega_telefono);
+    setFieldValue('estado', initialData.estado);
+
+    if (entregaToggle) entregaToggle.checked = Boolean(initialData.entrega_activa);
+    if (entregaFields) entregaFields.hidden = !initialData.entrega_activa;
+
+    const items: CotizacionItem[] = initialData.items ?? [];
+    items.forEach((item) => addItemRow(item));
+    if (items.length === 0) addItemRow();
+
+    renderPreview();
+  })();
+
+  // ---- Toggle móvil formulario / vista previa ----
+  const toggleButtons = root?.querySelectorAll<HTMLButtonElement>('[data-cot-view]');
+  toggleButtons?.forEach((button) => {
+    button.addEventListener('click', () => {
+      const view = button.dataset.cotView;
+      root?.querySelectorAll<HTMLElement>('[data-cot-pane]').forEach((pane) => {
+        pane.classList.toggle('is-active', pane.dataset.cotPane === view);
+      });
+      toggleButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    });
+  });
+
+  // ---- Armar el objeto para Supabase / PDF a partir del modelo actual ----
+  function buildCotizacionInput(): CotizacionInput {
+    const model = readModel();
+    const totales = calcularTotales(model.items, model.descuentoPct, model.aplicaIva, model.ivaPct);
+    return {
+      numero,
+      fecha,
+      cliente_nombre: model.cliente.nombre,
+      cliente_cuit: model.cliente.cuit,
+      cliente_direccion: model.cliente.direccion,
+      cliente_localidad: model.cliente.localidad,
+      cliente_telefono: model.cliente.telefono,
+      cliente_email: model.cliente.email,
+      items: model.items,
+      subtotal: totales.subtotal,
+      descuento_pct: model.descuentoPct,
+      aplica_iva: model.aplicaIva,
+      iva_pct: model.ivaPct,
+      total: totales.total,
+      validez_dias: model.condiciones.validezDias,
+      plazo_entrega: model.condiciones.plazoEntrega,
+      forma_pago: model.condiciones.formaPago,
+      comprobante: model.condiciones.comprobante,
+      observaciones: model.condiciones.observaciones,
+      entrega_nombre: model.entregaActiva ? model.entrega.nombre : '',
+      entrega_documento: model.entregaActiva ? model.entrega.documento : '',
+      entrega_direccion: model.entregaActiva ? model.entrega.direccion : '',
+      entrega_localidad: model.entregaActiva ? model.entrega.localidad : '',
+      entrega_provincia: model.entregaActiva ? model.entrega.provincia : '',
+      entrega_cp: model.entregaActiva ? model.entrega.cp : '',
+      entrega_telefono: model.entregaActiva ? model.entrega.telefono : '',
+      estado: model.estado as CotizacionInput['estado'],
+    };
+  }
+
+  root?.querySelector('[data-cot-save]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    if (!getFieldValue('cliente_nombre').trim()) {
+      setStatus('Completá el nombre o razón social del cliente.', true);
+      return;
+    }
+    button.disabled = true;
+    setStatus('Guardando...');
+    try {
+      const supabase = await requireBrowserSession();
+      const input = buildCotizacionInput();
+      await upsertCotizacion(supabase, recordId, input);
+      setStatus('Presupuesto guardado. Ya podés volver a buscarlo en el historial.');
+      const url = new URL(window.location.href);
+      if (!url.pathname.endsWith(`/${recordId}`)) {
+        window.history.replaceState({}, '', `/admin/documentos/presupuesto/${recordId}`);
+      }
+    } catch (error) {
+      console.error('[cotizacion-editor]', error);
+      setStatus(error instanceof Error ? error.message : 'No se pudo guardar el presupuesto.', true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  async function generarPdf() {
+    const logoDataUrl = await loadImageDataUrl('/icon-512.png');
+    const model = readModel();
+    const doc = buildCotizacionPdf({
+      numero,
+      fecha,
+      tagline,
+      cliente: model.cliente,
+      items: model.items,
+      descuentoPct: model.descuentoPct,
+      aplicaIva: model.aplicaIva,
+      ivaPct: model.ivaPct,
+      condiciones: model.condiciones,
+      entrega: model.entregaActiva ? model.entrega : null,
+      logoDataUrl,
+    });
+    return doc;
+  }
+
+  root?.querySelector('[data-cot-pdf]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    try {
+      const doc = await generarPdf();
+      const clienteSlug =
+        getFieldValue('cliente_nombre')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || 'cliente';
+      doc.save(`MULTIMEC_Presupuesto_${numero}_${fecha}_${clienteSlug}.pdf`);
+    } catch (error) {
+      console.error('[cotizacion-editor]', error);
+      setStatus('No se pudo generar el PDF.', true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  root?.querySelector('[data-cot-print]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    try {
+      const doc = await generarPdf();
+      const blobUrl = doc.output('bloburl');
+      window.open(blobUrl.toString(), '_blank');
+    } catch (error) {
+      console.error('[cotizacion-editor]', error);
+      setStatus('No se pudo preparar la impresión.', true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .cot-editor__toggle {
+    display: none;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .cot-editor__grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .cot-editor__actions {
+    margin-top: 16px;
+  }
+
+  .cot-section {
+    padding: 0;
+    margin: 0 0 22px;
+    border: 0;
+  }
+
+  .cot-section legend {
+    width: 100%;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue-2);
+  }
+
+  .cot-items {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .cot-item-row {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--graphite-2);
+  }
+
+  .cot-item-row__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .cot-item-row__grid output {
+    display: block;
+    min-height: 46px;
+    padding: 10px 13px;
+    border: 1px solid rgba(7, 8, 10, 0.12);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 0.9rem;
+  }
+
+  .cot-item-row__remove {
+    margin-top: 10px;
+    color: var(--danger);
+  }
+
+  @media (max-width: 720px) {
+    .cot-item-row__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ---- Vista previa: diseño industrial, fondo negro grafito + naranja ---- */
+  .cot-preview {
+    --cot-bg: #15171a;
+    --cot-bg-2: #1c1f23;
+    --cot-orange: #ff6a1a;
+    --cot-text: #f1efe9;
+    --cot-muted: #9aa3ab;
+    --cot-line: rgba(255, 255, 255, 0.14);
+
+    padding: clamp(18px, 2.6vw, 30px);
+    border-radius: 4px;
+    background: var(--cot-bg);
+    color: var(--cot-text);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cot-preview__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .cot-preview__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cot-preview__logo {
+    width: 40px;
+    height: 40px;
+    flex: none;
+  }
+
+  .cot-preview__brand strong {
+    display: block;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+    color: var(--cot-text);
+  }
+
+  .cot-preview__brand span {
+    font-size: 0.72rem;
+    color: var(--cot-muted);
+  }
+
+  .cot-preview__doc {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+  }
+
+  .cot-preview__doc strong {
+    font-size: 1.2rem;
+    color: var(--cot-orange);
+    letter-spacing: 0.04em;
+  }
+
+  .cot-preview__doc span {
+    font-size: 0.74rem;
+    color: var(--cot-muted);
+  }
+
+  .cot-preview__rule {
+    height: 2px;
+    margin: 16px 0;
+    background: var(--cot-orange);
+  }
+
+  .cot-preview__block {
+    margin-bottom: 16px;
+  }
+
+  .cot-preview__block h4 {
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cot-orange);
+  }
+
+  .cot-preview__block p {
+    margin: 2px 0;
+    color: var(--cot-text);
+  }
+
+  .cot-preview__table {
+    width: 100%;
+    margin-bottom: 14px;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  .cot-preview__table th,
+  .cot-preview__table td {
+    padding: 8px;
+    border: 1px solid var(--cot-line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .cot-preview__table th {
+    color: var(--cot-orange);
+    background: var(--cot-bg-2);
+    font-weight: 700;
+  }
+
+  .cot-preview__table td {
+    background: var(--cot-bg-2);
+  }
+
+  .cot-preview__table tr:nth-child(even) td {
+    background: #191c20;
+  }
+
+  .cot-preview__empty {
+    text-align: center;
+    color: var(--cot-muted);
+  }
+
+  .cot-preview__totales {
+    margin-bottom: 18px;
+    text-align: right;
+  }
+
+  .cot-preview__totales p {
+    margin: 2px 0;
+  }
+
+  .cot-preview__total {
+    margin-top: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cot-orange);
+  }
+
+  .cot-preview__firma {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 30px 0 18px;
+  }
+
+  .cot-preview__firma > div {
+    flex: 1;
+    text-align: center;
+  }
+
+  .cot-preview__firma span {
+    display: block;
+    height: 1px;
+    margin-bottom: 6px;
+    background: var(--cot-line);
+  }
+
+  .cot-preview__firma label {
+    font-size: 0.68rem;
+    color: var(--cot-muted);
+  }
+
+  .cot-preview__footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--cot-line);
+    font-size: 0.68rem;
+    color: var(--cot-muted);
+  }
+
+  .cot-preview__footer p {
+    margin: 1px 0;
+  }
+
+  @media (max-width: 980px) {
+    .cot-editor__toggle {
+      display: flex;
+    }
+
+    .cot-editor__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cot-editor__pane[data-cot-pane] {
+      display: none;
+    }
+
+    .cot-editor__pane.is-active {
+      display: block;
+    }
+  }
+</style>

@@ -1,0 +1,109 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { listCotizaciones, COTIZACION_ESTADO_LABEL } from '../../../../lib/cotizaciones';
+import type { CotizacionEstado } from '../../../../lib/cotizaciones';
+
+const cotizaciones = await listCotizaciones(Astro.locals.supabase);
+
+const money = (n: number) =>
+  n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 });
+
+const fechaCorta = (iso: string) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+const variantPorEstado: Record<CotizacionEstado, string> = {
+  borrador: 'orange',
+  enviado: 'blue',
+  aprobado: 'green',
+  rechazado: 'red',
+};
+---
+
+<AdminLayout title="Presupuestos">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Documentos</p>
+      <h1>Presupuestos</h1>
+    </div>
+    <a class="btn btn--primary" href="/admin/documentos/presupuesto/nueva">Nuevo presupuesto</a>
+  </div>
+
+  {
+    cotizaciones.length === 0 ? (
+      <p class="admin-empty">
+        Todavía no armaste ningún presupuesto. Creá el primero con "Nuevo presupuesto".
+      </p>
+    ) : (
+      <div class="cot-list">
+        {cotizaciones.map((c) => (
+          <a class="cot-list__row" href={`/admin/documentos/presupuesto/${c.id}`}>
+            <span class="cot-list__numero">N° {c.numero}</span>
+            <span class="cot-list__cliente">{c.cliente_nombre || 'Sin nombre'}</span>
+            <span class="cot-list__fecha">{fechaCorta(c.fecha)}</span>
+            <span class="cot-list__total">{money(c.total)}</span>
+            <span class={`tag tag--dot tag--${variantPorEstado[c.estado]}`}>{COTIZACION_ESTADO_LABEL[c.estado]}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .cot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .cot-list__row {
+    display: grid;
+    grid-template-columns: 100px 1.4fr 110px 140px auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--graphite);
+    color: var(--text);
+    font-size: 0.86rem;
+  }
+
+  .cot-list__row:hover {
+    color: var(--blue-2);
+  }
+
+  .cot-list__numero {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted-2);
+  }
+
+  .cot-list__cliente {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .cot-list__row:hover .cot-list__cliente {
+    color: var(--blue-2);
+  }
+
+  .cot-list__fecha {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+
+  .cot-list__total {
+    font-weight: 600;
+  }
+
+  @media (max-width: 760px) {
+    .cot-list__row {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 6px;
+    }
+  }
+</style>

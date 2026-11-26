@@ -1,0 +1,289 @@
+---
+interface Props {
+  tipo: 'presupuesto' | 'remito';
+}
+
+const { tipo } = Astro.props;
+
+const esPresupuesto = tipo === 'presupuesto';
+const tituloDoc = esPresupuesto ? 'Presupuesto' : 'Remito';
+const labelCliente = esPresupuesto ? 'Cliente / Señor(es)' : 'Entregado a';
+const labelDescripcion = esPresupuesto ? 'Descripción del trabajo' : 'Detalle de la entrega';
+
+const hoyLegible = new Date().toLocaleDateString('es-AR', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<div class="quote-panel" data-doc-panel data-doc-tipo={tipo}>
+  <div class="quote-panel__head">
+    <h3>{tituloDoc} Multi Mec</h3>
+    <span>Fecha: {hoyLegible}</span>
+  </div>
+
+  <form class="form form-grid" data-doc-form>
+    <p class="form__status form__status--error" data-doc-form-status></p>
+
+    <div class="field">
+      <label for="doc_numero">N° de documento</label>
+      <input id="doc_numero" name="numero" type="text" data-doc-numero autocomplete="off" />
+      <p class="field__hint">Se sugiere solo, pero lo podés cambiar.</p>
+    </div>
+
+    <div class="field field--full">
+      <label for="doc_cliente">{labelCliente}<span class="req">*</span></label>
+      <input id="doc_cliente" name="cliente" type="text" required autocomplete="off" />
+    </div>
+
+    <div class="field field--full">
+      <label for="doc_descripcion">{labelDescripcion}<span class="req">*</span></label>
+      <textarea id="doc_descripcion" name="descripcion" required></textarea>
+    </div>
+
+    <div class="field">
+      <label for="doc_monto">Precio / total del trabajo</label>
+      <input id="doc_monto" name="monto" type="number" min="0" step="0.01" placeholder="0" inputmode="decimal" />
+    </div>
+
+    <div class="field">
+      <label for="doc_fecha_entrega">Fecha estimada de entrega</label>
+      <input id="doc_fecha_entrega" name="fecha_entrega" type="date" />
+    </div>
+
+    <div class="field field--full">
+      <label>Imagen (opcional)</label>
+      <input id="doc_imagen" name="imagen" type="file" accept="image/*" capture="environment" data-doc-file />
+      <p class="field__hint">Podés sacar la foto con la cámara o elegirla del dispositivo.</p>
+      <img data-doc-preview hidden class="quote-panel__photo" alt="Vista previa de la imagen cargada" />
+    </div>
+
+    <div class="form__actions field--full">
+      <button class="btn btn--primary" type="submit" data-doc-submit>Finalizar y descargar PDF</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  import { jsPDF } from 'jspdf';
+  import { LETTERHEAD, siguienteNumeroDocumento, registrarNumeroUsado } from '../../lib/letterhead';
+  import { loadImageDataUrl, drawWatermark } from '../../lib/pdf-assets';
+
+  const panel = document.querySelector<HTMLElement>('[data-doc-panel]');
+  const form = panel?.querySelector<HTMLFormElement>('[data-doc-form]');
+  const statusEl = panel?.querySelector<HTMLElement>('[data-doc-form-status]');
+  const fileInput = panel?.querySelector<HTMLInputElement>('[data-doc-file]');
+  const preview = panel?.querySelector<HTMLImageElement>('[data-doc-preview]');
+  const submitBtn = panel?.querySelector<HTMLButtonElement>('[data-doc-submit]');
+  const numeroInput = panel?.querySelector<HTMLInputElement>('[data-doc-numero]');
+
+  const tipoActual = (panel?.dataset.docTipo as 'presupuesto' | 'remito') ?? 'presupuesto';
+  if (numeroInput && !numeroInput.value) {
+    numeroInput.value = siguienteNumeroDocumento(tipoActual);
+  }
+
+  let imagenDataUrl: string | null = null;
+
+  const setStatus = (message: string) => {
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.classList.toggle('is-visible', Boolean(message));
+  };
+
+  fileInput?.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (!file) {
+      imagenDataUrl = null;
+      if (preview) preview.hidden = true;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      imagenDataUrl = typeof reader.result === 'string' ? reader.result : null;
+      if (preview && imagenDataUrl) {
+        preview.src = imagenDataUrl;
+        preview.hidden = false;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    setStatus('');
+
+    const tipo = (panel?.dataset.docTipo as 'presupuesto' | 'remito') ?? 'presupuesto';
+    const data = new FormData(form);
+    const numero = String(data.get('numero') ?? '').trim() || siguienteNumeroDocumento(tipo);
+    const cliente = String(data.get('cliente') ?? '').trim();
+    const descripcion = String(data.get('descripcion') ?? '').trim();
+    const monto = Number(data.get('monto') ?? 0) || 0;
+    const fechaEntrega = String(data.get('fecha_entrega') ?? '');
+
+    if (!cliente || !descripcion) {
+      setStatus('Completá el nombre y la descripción.');
+      return;
+    }
+
+    submitBtn?.setAttribute('disabled', 'true');
+
+    try {
+      const logoDataUrl = await loadImageDataUrl('/logo-watermark.png');
+      const hoy = new Date();
+      const fechaLegible = hoy.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const tituloDoc = tipo === 'presupuesto' ? 'PRESUPUESTO' : 'REMITO';
+      const labelCliente = tipo === 'presupuesto' ? 'Señor/es' : 'Entregado a';
+      const labelDescripcion = tipo === 'presupuesto' ? 'Descripción del trabajo' : 'Detalle de la entrega';
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 18;
+      const contentWidth = pageWidth - margin * 2;
+      const leftWidth = contentWidth * 0.62;
+      let y = margin;
+
+      drawWatermark(doc, logoDataUrl);
+
+      // Encabezado con marca y membrete del taller
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor(29, 79, 196);
+      doc.text(LETTERHEAD.marca, margin, y);
+
+      const datosTaller = [
+        LETTERHEAD.responsable,
+        LETTERHEAD.rubro,
+        LETTERHEAD.actividad,
+        LETTERHEAD.nota,
+        `WhatsApp: ${LETTERHEAD.whatsapp}`,
+        LETTERHEAD.direccion,
+      ];
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.8);
+      doc.setTextColor(60, 70, 85);
+      let yTaller = y + 5.5;
+      for (const linea of datosTaller) {
+        const envueltas = doc.splitTextToSize(linea, leftWidth) as string[];
+        doc.text(envueltas, margin, yTaller);
+        yTaller += envueltas.length * 4.2;
+      }
+
+      // Bloque derecho: tipo de documento, número y fecha
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(19);
+      doc.setTextColor(17, 21, 28);
+      doc.text(tituloDoc, pageWidth - margin, y, { align: 'right' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(60, 70, 85);
+      doc.text(`N°: ${numero}`, pageWidth - margin, y + 8, { align: 'right' });
+      doc.text(`Fecha: ${fechaLegible}`, pageWidth - margin, y + 14, { align: 'right' });
+
+      y = Math.max(yTaller, y + 14) + 6;
+      doc.setDrawColor(29, 79, 196);
+      doc.setLineWidth(0.6);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 12;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(17, 21, 28);
+      doc.text(`${labelCliente}:`, margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(cliente, margin + 32, y);
+      y += 9;
+
+      if (fechaEntrega) {
+        const fechaEntregaLegible = new Date(`${fechaEntrega}T00:00:00`).toLocaleDateString('es-AR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        });
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Fecha estimada de entrega:', margin, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(fechaEntregaLegible, margin + 58, y);
+        y += 9;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text(`${labelDescripcion}:`, margin, y);
+      y += 7;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10.5);
+      const lineasDescripcion = doc.splitTextToSize(descripcion, contentWidth) as string[];
+      doc.text(lineasDescripcion, margin, y);
+      y += lineasDescripcion.length * 5.5 + 8;
+
+      if (monto > 0) {
+        const montoFormateado = monto.toLocaleString('es-AR', {
+          style: 'currency',
+          currency: 'ARS',
+          maximumFractionDigits: 2,
+        });
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(29, 79, 196);
+        doc.text(`Total: ${montoFormateado}`, margin, y);
+        doc.setTextColor(17, 21, 28);
+        y += 12;
+      }
+
+      if (imagenDataUrl) {
+        const formato = imagenDataUrl.includes('image/png') ? 'PNG' : 'JPEG';
+        const props = doc.getImageProperties(imagenDataUrl);
+        const maxHeight = 110;
+        let imgWidth = contentWidth;
+        let imgHeight = (props.height * imgWidth) / props.width;
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = (props.width * imgHeight) / props.height;
+        }
+        if (y + imgHeight > pageHeight - 30) {
+          doc.addPage();
+          y = margin;
+        }
+        doc.addImage(imagenDataUrl, formato, margin, y, imgWidth, imgHeight);
+        y += imgHeight + 10;
+      }
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 128, 140);
+      doc.text(
+        'Documento generado desde el panel de administración de Multi Mec.',
+        margin,
+        pageHeight - 14,
+      );
+
+      const clienteSlug =
+        cliente
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || 'cliente';
+      const fechaArchivo = hoy.toISOString().slice(0, 10);
+      const numeroSlug = numero.replace(/[^a-zA-Z0-9-]+/g, '') || 'sn';
+
+      doc.save(`${tipo}-${numeroSlug}-${clienteSlug}-${fechaArchivo}.pdf`);
+      registrarNumeroUsado(tipo);
+
+      form?.reset();
+      imagenDataUrl = null;
+      if (preview) preview.hidden = true;
+      if (numeroInput) numeroInput.value = siguienteNumeroDocumento(tipo);
+    } catch (error) {
+      console.error('[documento-form]', error);
+      setStatus('No se pudo generar el PDF. Probá de nuevo.');
+    } finally {
+      submitBtn?.removeAttribute('disabled');
+    }
+  });
+</script>

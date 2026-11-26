@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import CotizacionEditor from '../../../../components/admin/CotizacionEditor.astro';
+import { siguienteNumeroCotizacion } from '../../../../lib/cotizaciones';
+
+const numero = await siguienteNumeroCotizacion(Astro.locals.supabase);
+const id = crypto.randomUUID();
+---
+
+<AdminLayout title="Nuevo presupuesto">
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Documentos</p>
+      <h1>Nuevo presupuesto</h1>
+    </div>
+    <a class="btn btn--outline btn--sm" href="/admin/documentos/presupuesto">Volver al historial</a>
+  </div>
+
+  <CotizacionEditor id={id} numero={numero} />
+</AdminLayout>

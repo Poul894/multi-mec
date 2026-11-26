@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
 import JobCard from '../../components/admin/JobCard.astro';
 import JobQuickCreateDialog from '../../components/admin/JobQuickCreateDialog.astro';
 import AgendaStrip from '../../components/admin/AgendaStrip.astro';
@@ -26,14 +27,22 @@ const fechaHoy = new Date().toLocaleDateString('es-AR', {
 });
 ---
 
-<AdminLayout title="Panel de control">
+<AdminLayout title="Inicio">
   <div class="dash-hero">
     <div>
       <p class="admin-eyebrow">{saludo}</p>
-      <h1>Panel de control</h1>
+      <h1>Inicio</h1>
       <p class="dash-hero__date">{fechaHoy}</p>
     </div>
-    <JobQuickCreateDialog />
+    <div class="dash-hero__actions">
+      <a class="btn btn--outline btn--lg" href="/admin/documentos/presupuesto">
+        <Icon name="quote" size={18} /> Presupuesto
+      </a>
+      <a class="btn btn--outline btn--lg" href="/admin/documentos/remito">
+        <Icon name="file" size={18} /> Remito
+      </a>
+      <JobQuickCreateDialog />
+    </div>
   </div>
 
   <div class="admin-stats">

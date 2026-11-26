@@ -1,0 +1,26 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import CotizacionEditor from '../../../../components/admin/CotizacionEditor.astro';
+import { getCotizacion } from '../../../../lib/cotizaciones';
+
+const { id } = Astro.params;
+const cotizacion = id ? await getCotizacion(Astro.locals.supabase, id) : null;
+
+if (!cotizacion) {
+  return new Response(null, { status: 404 });
+}
+---
+
+<AdminLayout title={cotizacion.cliente_nombre || `Presupuesto ${cotizacion.numero}`}>
+  <div class="admin-page-head">
+    <div>
+      <p class="admin-eyebrow">Documentos</p>
+      <h1>Presupuesto N° {cotizacion.numero}</h1>
+    </div>
+    <a class="btn btn--outline btn--sm" href="/admin/documentos/presupuesto">Volver al historial</a>
+  </div>
+
+  <CotizacionEditor id={cotizacion.id} numero={cotizacion.numero} cotizacion={cotizacion} />
+</AdminLayout>
